@@ -52,6 +52,8 @@ Mod 文件存放路径：
 - 国际版：`/data/data/com.playdigious.deadcells.mobile/files/mod/`
   （国际版受作用域存储限制，无法访问外部存储）
 
+> **⚠️ 免 root 环境（LSPatch 及其分支）：** 模块理论上可通过 [LSPatch](https://github.com/LSPosed/LSPatch) 等免 root 框架加载，但此类环境与原生 LSPosed 存在差异，不保证可用性。对于国际版正版，LSPatch 方式需要对 APK 本体进行修补，这**必定**会触发 pairip 的反篡改检测导致闪退——除非使用的是已移除 pairip 的破解版。
+
 ## 构建
 
 1. 安装 Android SDK（包含 `platforms;android-36`、`ndk;28.2.13676358`、`cmake;3.31.6`）

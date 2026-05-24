@@ -52,6 +52,8 @@ Mod files go to:
 - Google Play: `/data/data/com.playdigious.deadcells.mobile/files/mod/`
   (external storage is not accessible due to scoped storage restrictions)
 
+> **⚠️ Rootless environments (LSPatch / forks):** While the module can theoretically be loaded without root via [LSPatch](https://github.com/LSPosed/LSPatch) or its forks, these environments differ from native LSPosed and compatibility is not guaranteed. For the Google Play version specifically, LSPatch-style patching involves modifying the APK itself, which **will** trigger pairip's anti-tamper detection and cause a crash — unless you are using a cracked/pirated copy that already has pairip removed.
+
 ## Building
 
 1. Install Android SDK with `platforms;android-36`, `ndk;28.2.13676358`, `cmake;3.31.6`
