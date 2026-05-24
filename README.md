@@ -35,7 +35,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | Bilibili (China) | `com.bilibili.deadcells.mobile` | ✅ Working |
 | Google Play (Global) | `com.playdigious.deadcells.mobile` | ✅ Working |
 
-> **⚠️ Google Play version note:** The official Google Play build includes **pairip** (Play Integrity / anti-tamper). If you are using the Google Play version, you must enable **"Restore inline hooks"** for Dead Cells in LSPosed's module settings. Otherwise pairip will detect the modification and crash the game.
+> **⚠️ Google Play version note:** The official Google Play build includes **pairip** (Play Integrity / anti-tamper). If you are using the Google Play version, you must enable **"Invalidate inline hooks"** for Dead Cells in LSPosed's module settings. Otherwise pairip will detect the modification and crash the game.
 >
 > ![](docs/pairip_setting_1.jpg)
 > ![](docs/pairip_setting_2.jpg)
