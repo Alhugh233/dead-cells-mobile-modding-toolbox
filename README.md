@@ -14,7 +14,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 |---------|-------------|--------|
 | Asset replacement | Replace existing `.pak` files with modded versions | ✅ Working |
 | Asset injection | Inject new `.pak` files that don't exist in the APK | ❌ Game ignores injected files |
-| PAD path redirection | Support for Google Play Asset Delivery paths (international version) | ✅ Working |
+| PAD path redirection | Support for Google Play Asset Delivery paths (global version) | ✅ Working |
 | Native hook | Hooks `AAssetManager_open` + `open()` syscall via LSPlant | ✅ Working |
 
 ### PAK Toolkit (Offline, via module app UI)
