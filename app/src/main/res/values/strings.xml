@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DCMMT</string>
+    <string name="status_loading">Connecting…</string>
+    <string name="status_inactive">Module Inactive</string>
+    <string name="status_active">Module Active (API %d)</string>
+    <string name="framework_format">%1$s v%2$s</string>
+    <string name="request_scope">Request Scope</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+    <string name="scope_required">Please request scope first</string>
+    <string name="pak_tool">PAK Tool</string>
+    <string name="about">About</string>
+
+    <!-- PAK Tool -->
+    <string name="pak_title">PAK Tool</string>
+    <string name="pak_unpack">Unpack PAK → Dir</string>
+    <string name="pak_unpack_hint_pak">PAK file path</string>
+    <string name="pak_unpack_hint_dir">Output directory</string>
+    <string name="pak_unpack_btn">Unpack</string>
+    <string name="pak_pack">Pack Dir → PAK</string>
+    <string name="pak_pack_hint_dir">Source directory</string>
+    <string name="pak_pack_hint_pak">Output PAK</string>
+    <string name="pak_pack_btn">Pack</string>
+    <string name="pak_merge">Merge PAK (comma-separated)</string>
+    <string name="pak_merge_hint_in">Input PAK paths, comma-separated</string>
+    <string name="pak_merge_hint_out">Output PAK</string>
+    <string name="pak_merge_btn">Merge</string>
+    <string name="pak_atlas_unpack">Unpack Atlas → Sprites</string>
+    <string name="pak_atlas_unpack_hint">.atlas file path</string>
+    <string name="pak_atlas_unpack_btn">Unpack Atlas</string>
+    <string name="pak_atlas_pack">Pack Atlas (PNGs → .atlas + .png)</string>
+    <string name="pak_atlas_pack_hint_dir">PNG directory</string>
+    <string name="pak_atlas_pack_hint_atlas">Output .atlas</string>
+    <string name="pak_atlas_pack_hint_png">Output .png</string>
+    <string name="pak_atlas_pack_btn">Pack Atlas</string>
+    <string name="pak_need_permission_title">Storage Permission Required</string>
+    <string name="pak_need_permission_msg">PAK Tool needs access to all files.</string>
+    <string name="pak_grant">Grant</string>
+    <string name="pak_fill_paths">Please fill in all paths</string>
+    <string name="pak_complete">Done: %s</string>
+    <string name="pak_failed">Failed</string>
+    <string name="pak_no_permission">No storage permission</string>
+</resources>

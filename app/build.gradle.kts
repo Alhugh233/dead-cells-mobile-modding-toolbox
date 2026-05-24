@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.libxposed.example"
+    namespace = "com.deadcells.modding"
     compileSdk = 36
     buildToolsVersion = "36.1.0"
 

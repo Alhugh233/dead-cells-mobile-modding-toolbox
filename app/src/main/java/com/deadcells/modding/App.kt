@@ -1,4 +1,4 @@
-package io.github.libxposed.example
+package com.deadcells.modding
 
 import android.app.Application
 import io.github.libxposed.service.XposedService

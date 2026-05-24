@@ -179,7 +179,7 @@ static bool atlas_pack(const char* input_dir, const char* out_atlas, const char*
 #include <jni.h>
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_io_github_libxposed_example_PakTool_atlasPack(JNIEnv* env, jclass,
+Java_com_deadcells_modding_PakTool_atlasPack(JNIEnv* env, jclass,
                                                      jstring inDir, jstring outAtlas, jstring outPng) {
     const char* dir = env->GetStringUTFChars(inDir, nullptr);
     const char* atl = env->GetStringUTFChars(outAtlas, nullptr);

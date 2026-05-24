@@ -1,4 +1,4 @@
-package io.github.libxposed.example;
+package com.deadcells.modding;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,7 +20,7 @@ public class AboutActivity extends Activity {
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
 
         TextView title = new TextView(this);
-        title.setText("致谢 / Credits");
+        title.setText(R.string.about);
         title.setTextSize(24);
         title.setGravity(Gravity.CENTER);
         layout.addView(title);

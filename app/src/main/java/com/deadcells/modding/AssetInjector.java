@@ -1,4 +1,4 @@
-package io.github.libxposed.example;
+package com.deadcells.modding;
 
 import android.content.res.AssetManager;
 import android.util.Log;

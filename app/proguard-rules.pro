@@ -13,9 +13,9 @@
 }
 
 # Native
--keep class io.github.libxposed.example.AssetReplacer { *; }
--keep class io.github.libxposed.example.PakTool { *; }
--keep class io.github.libxposed.example.AssetInjector { *; }
+-keep class com.deadcells.modding.AssetReplacer { *; }
+-keep class com.deadcells.modding.PakTool { *; }
+-keep class com.deadcells.modding.AssetInjector { *; }
 
 # Kotlin
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {

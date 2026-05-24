@@ -47,14 +47,6 @@
         tools:text="Framework version code" />
 
     <TextView
-        android:id="@+id/framework_properties"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textAppearance="?android:textAppearanceLarge"
-        tools:text="Framework properties" />
-
-    <TextView
         android:id="@+id/scope"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,36 +58,19 @@
         android:id="@+id/request_scope"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Request Scope"
-        tools:ignore="HardcodedText" />
-
-    <Button
-        android:id="@+id/random_prefs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Random Prefs"
-        tools:ignore="HardcodedText" />
-
-    <Button
-        android:id="@+id/remote_file"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Remote File"
-        tools:ignore="HardcodedText" />
+        android:text="@string/request_scope" />
 
     <Button
         android:id="@+id/pak_tool"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="PAK 工具"
-        tools:ignore="HardcodedText" />
+        android:text="@string/pak_tool" />
 
     <Button
         android:id="@+id/about"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="致谢"
-        tools:ignore="HardcodedText" />
+        android:text="@string/about" />
 </LinearLayout>

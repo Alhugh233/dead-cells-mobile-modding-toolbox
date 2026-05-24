@@ -1,4 +1,4 @@
-package io.github.libxposed.example
+package com.deadcells.modding
 
 import android.os.Build
 import android.util.Log
@@ -75,7 +75,7 @@ class ModuleMainKt : XposedModule() {
 
         if (!param.isFirstPackage) return
 
-        val exampleClass = Class.forName("io.github.libxposed.example.Example", true, param.classLoader)
+        val exampleClass = Class.forName("com.deadcells.modding.Example", true, param.classLoader)
         val exampleMethod = exampleClass.getDeclaredMethod("method")
         val exampleConstructor = exampleClass.getDeclaredConstructor()
 

@@ -27,12 +27,12 @@ void log_bridge(const char* tag, const char* msg) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_io_github_libxposed_example_PakActivity_nativeSetLogCallback(
+Java_com_deadcells_modding_PakActivity_nativeSetLogCallback(
     JNIEnv* env, jclass cls) {
 
     JavaVM* jvm;
     env->GetJavaVM(&jvm);
-    jclass clz = env->FindClass("io/github/libxposed/example/PakActivity");
+    jclass clz = env->FindClass("com/deadcells/modding/PakActivity");
     jmethodID mid = env->GetStaticMethodID(clz, "appendLog", "(Ljava/lang/String;)V");
     if (clz && mid) log_bridge_init(jvm, clz, mid);
 }

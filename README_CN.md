@@ -24,7 +24,7 @@
 | PAK 解包 | 将 `.pak` 文件提取为目录树 | ✅ 可用 |
 | PAK 打包 | 从目录构建 `.pak`（自动保留 stamp） | ✅ 可用 |
 | PAK 合并 | 将多个 `.pak` 合并为一个（同名覆盖） | ✅ 可用 |
-| Atlas 解包 | 将 `.atlas`（BATL）提取为精灵坐标列表 | ✅ 可用 |
+| Atlas 解包 | 将 `.atlas`（BATL）提取为精灵坐标列表 | ⚠️ 未经测试 |
 | Atlas 打包 | 从精灵图片构建 `.atlas` + 纹理 PNG | ⚠️ 未经测试 |
 | MO ↔ PO | MO/PO 转换（gettext） | ❌ 已移除 — 游戏使用非标准格式 |
 
@@ -49,8 +49,8 @@
 
 Mod 文件存放路径：
 - 中国版：`/storage/emulated/0/Android/data/com.bilibili.deadcells.mobile/mod/`
-- 国际版：`/storage/emulated/0/Android/data/com.playdigious.deadcells.mobile/mod/`
-  （若作用域存储阻止以上路径，则回退至 `/data/data/<pkg>/files/mod/`）
+- 国际版：`/data/data/com.playdigious.deadcells.mobile/files/mod/`
+  （国际版受作用域存储限制，无法访问外部存储）
 
 ## 构建
 

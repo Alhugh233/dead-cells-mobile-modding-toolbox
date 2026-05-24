@@ -1,4 +1,4 @@
-package io.github.libxposed.example;
+package com.deadcells.modding;
 
 import android.os.Build;
 import android.util.Log;
@@ -50,7 +50,7 @@ public class ModuleMain extends XposedModule {
         }
 
         try {
-            var exampleClass = Class.forName("io.github.libxposed.example.Example", true, param.getClassLoader());
+            var exampleClass = Class.forName("com.deadcells.modding.Example", true, param.getClassLoader());
             var exampleMethod = exampleClass.getDeclaredMethod("method");
             var exampleConstructor = exampleClass.getDeclaredConstructor();
 

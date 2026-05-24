@@ -10,7 +10,7 @@
     <application
         android:name=".App"
         android:description="@android:string/unknownName"
-        android:label="Xposed Example"
+        android:label="DCMMT"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:ignore="MissingApplicationIcon">
         <activity

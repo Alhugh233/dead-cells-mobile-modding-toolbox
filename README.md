@@ -24,7 +24,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | PAK unpack | Extract `.pak` files to directory tree | ✅ Working |
 | PAK pack | Build `.pak` from directory (auto stamp preservation) | ✅ Working |
 | PAK merge | Merge multiple `.pak` into one (overwrite logic) | ✅ Working |
-| Atlas unpack | Extract `.atlas` (BATL) to sprite coordinate listings | ✅ Working |
+| Atlas unpack | Extract `.atlas` (BATL) to sprite coordinate listings | ⚠️ Untested |
 | Atlas pack | Build `.atlas` + atlas PNG from individual sprites | ⚠️ Untested |
 | MO ↔ PO | Convert MO files to/from PO (gettext) | ❌ Removed — game uses non-standard format |
 
@@ -49,8 +49,8 @@ The module uses a two-layer hooking approach:
 
 Mod files go to:
 - Bilibili: `/storage/emulated/0/Android/data/com.bilibili.deadcells.mobile/mod/`
-- Google Play: `/storage/emulated/0/Android/data/com.playdigious.deadcells.mobile/mod/`
-  (falls back to `/data/data/<pkg>/files/mod/` if scoped storage blocks the above)
+- Google Play: `/data/data/com.playdigious.deadcells.mobile/files/mod/`
+  (external storage is not accessible due to scoped storage restrictions)
 
 ## Building
 

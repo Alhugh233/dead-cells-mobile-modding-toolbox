@@ -602,7 +602,7 @@ static bool install_hooks() {
 // ─── JNI: called from Java to set the target package ────────────────
 
 extern "C" JNIEXPORT void JNICALL
-Java_io_github_libxposed_example_AssetReplacer_nativeInit(
+Java_com_deadcells_modding_AssetReplacer_nativeInit(
     JNIEnv* env, jclass /*clazz*/, jstring packageName) {
 
     const char* pkg = env->GetStringUTFChars(packageName, nullptr);

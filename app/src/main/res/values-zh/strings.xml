@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DCMMT</string>
+    <string name="status_loading">正在连接…</string>
+    <string name="status_inactive">模块未激活</string>
+    <string name="status_active">模块已激活 (API %d)</string>
+    <string name="framework_format">%1$s v%2$s</string>
+    <string name="request_scope">申请作用域</string>
+    <string name="apply">申请</string>
+    <string name="cancel">取消</string>
+    <string name="scope_required">请先申请作用域</string>
+    <string name="pak_tool">PAK 工具</string>
+    <string name="about">致谢</string>
+
+    <!-- PAK Tool -->
+    <string name="pak_title">PAK 工具</string>
+    <string name="pak_unpack">解包 PAK → 目录</string>
+    <string name="pak_unpack_hint_pak">PAK 文件路径</string>
+    <string name="pak_unpack_hint_dir">输出目录</string>
+    <string name="pak_unpack_btn">解包</string>
+    <string name="pak_pack">打包 目录 → PAK</string>
+    <string name="pak_pack_hint_dir">源目录</string>
+    <string name="pak_pack_hint_pak">输出 PAK</string>
+    <string name="pak_pack_btn">打包</string>
+    <string name="pak_merge">合并 PAK (逗号分隔)</string>
+    <string name="pak_merge_hint_in">输入 PAK 路径，逗号分隔</string>
+    <string name="pak_merge_hint_out">输出 PAK</string>
+    <string name="pak_merge_btn">合并</string>
+    <string name="pak_atlas_unpack">解包 Atlas → 精灵坐标</string>
+    <string name="pak_atlas_unpack_hint">.atlas 文件路径</string>
+    <string name="pak_atlas_unpack_btn">解包 Atlas</string>
+    <string name="pak_atlas_pack">打包 Atlas (PNG → .atlas + .png)</string>
+    <string name="pak_atlas_pack_hint_dir">PNG 图片目录</string>
+    <string name="pak_atlas_pack_hint_atlas">输出 .atlas</string>
+    <string name="pak_atlas_pack_hint_png">输出 .png</string>
+    <string name="pak_atlas_pack_btn">打包 Atlas</string>
+    <string name="pak_need_permission_title">需要文件访问权限</string>
+    <string name="pak_need_permission_msg">PAK 工具需要「所有文件访问」权限。\n\n即将跳转到系统设置页面，请授予此权限后返回。</string>
+    <string name="pak_grant">去授权</string>
+    <string name="pak_fill_paths">请填写所有路径</string>
+    <string name="pak_complete">完成: %s</string>
+    <string name="pak_failed">失败</string>
+    <string name="pak_no_permission">未授予文件访问权限</string>
+</resources>

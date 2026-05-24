@@ -574,7 +574,7 @@ static bool pak_merge(const char* out_pak, const char* stamp, int count, const c
 extern "C" {
 
 JNIEXPORT jboolean JNICALL
-Java_io_github_libxposed_example_PakTool_unpack(JNIEnv* env, jclass,
+Java_com_deadcells_modding_PakTool_unpack(JNIEnv* env, jclass,
                                                  jstring pakPath, jstring outDir) {
     const char* pak = env->GetStringUTFChars(pakPath, nullptr);
     const char* out = env->GetStringUTFChars(outDir, nullptr);
@@ -586,7 +586,7 @@ Java_io_github_libxposed_example_PakTool_unpack(JNIEnv* env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL
-Java_io_github_libxposed_example_PakTool_pack(JNIEnv* env, jclass,
+Java_com_deadcells_modding_PakTool_pack(JNIEnv* env, jclass,
                                                jstring inDir, jstring outPak, jstring stamp) {
     const char* in = env->GetStringUTFChars(inDir, nullptr);
     const char* out = env->GetStringUTFChars(outPak, nullptr);
@@ -600,7 +600,7 @@ Java_io_github_libxposed_example_PakTool_pack(JNIEnv* env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL
-Java_io_github_libxposed_example_PakTool_atlasUnpack(JNIEnv* env, jclass,
+Java_com_deadcells_modding_PakTool_atlasUnpack(JNIEnv* env, jclass,
                                                       jstring atlasPath, jstring outDir) {
     const char* ap = env->GetStringUTFChars(atlasPath, nullptr);
     const char* od = env->GetStringUTFChars(outDir, nullptr);
@@ -612,7 +612,7 @@ Java_io_github_libxposed_example_PakTool_atlasUnpack(JNIEnv* env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL
-Java_io_github_libxposed_example_PakTool_merge(JNIEnv* env, jclass,
+Java_com_deadcells_modding_PakTool_merge(JNIEnv* env, jclass,
                                                  jstring outPak, jstring stamp, jobjectArray inputs) {
     const char* out = env->GetStringUTFChars(outPak, nullptr);
     const char* st = stamp ? env->GetStringUTFChars(stamp, nullptr) : nullptr;

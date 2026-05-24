@@ -1,4 +1,4 @@
-package io.github.libxposed.example;
+package com.deadcells.modding;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,14 +32,14 @@ public class PakActivity extends Activity {
     private void requestStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             new AlertDialog.Builder(this)
-                .setTitle("需要文件访问权限")
-                .setMessage("PAK 工具需要「所有文件访问」权限。\n\n即将跳转到系统设置页面。")
-                .setPositiveButton("去授权", (d, w) -> {
+                .setTitle(getString(R.string.pak_need_permission_title))
+                .setMessage(getString(R.string.pak_need_permission_msg))
+                .setPositiveButton(getString(R.string.pak_grant), (d, w) -> {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                     intent.setData(Uri.parse("package:" + getPackageName()));
                     startActivity(intent);
                 })
-                .setNegativeButton("取消", (d, w) -> finish())
+                .setNegativeButton(getString(R.string.cancel), (d, w) -> finish())
                 .setCancelable(false)
                 .show();
         }
@@ -53,7 +53,7 @@ public class PakActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (!hasStoragePermission()) {
-            mStatus.setText("未授予文件访问权限");
+            mStatus.setText(getString(R.string.pak_no_permission));
         }
     }
 
@@ -76,107 +76,112 @@ public class PakActivity extends Activity {
         rootScroll.addView(layout);
 
         TextView title = new TextView(this);
-        title.setText("PAK 工具");
+        title.setText(getString(R.string.pak_title));
         title.setTextSize(22);
         layout.addView(title);
 
         // --- Unpack ---
         TextView ul = new TextView(this);
-        ul.setText("\n解包 PAK → 目录"); ul.setTextSize(16);
+        ul.setText("\n" + getString(R.string.pak_unpack)); ul.setTextSize(16);
         layout.addView(ul);
-        mPakPath = new EditText(this); mPakPath.setHint("PAK 文件路径"); mPakPath.setTextSize(14);
+        mPakPath = new EditText(this); mPakPath.setHint(getString(R.string.pak_unpack_hint_pak)); mPakPath.setTextSize(14);
         layout.addView(mPakPath);
-        mDirPath = new EditText(this); mDirPath.setHint("输出目录"); mDirPath.setTextSize(14);
+        mDirPath = new EditText(this); mDirPath.setHint(getString(R.string.pak_unpack_hint_dir)); mDirPath.setTextSize(14);
         layout.addView(mDirPath);
-        Button ub = new Button(this); ub.setText("解包");
+        Button ub = new Button(this); ub.setText(getString(R.string.pak_unpack_btn));
         ub.setOnClickListener(v -> {
             String pak = mPakPath.getText().toString().trim();
             String dir = mDirPath.getText().toString().trim();
-            if (pak.isEmpty() || dir.isEmpty()) { Toast.makeText(this, "请填写路径", Toast.LENGTH_SHORT).show(); return; }
+            if (pak.isEmpty() || dir.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
             startOp(() -> {
                 boolean ok = PakTool.unpack(pak, dir);
-                mHandler.post(() -> mStatus.setText(ok ? ("解包完成: " + dir) : "解包失败"));
+                mHandler.post(() -> mStatus.setText(ok ?
+                    getString(R.string.pak_complete, dir) : getString(R.string.pak_failed)));
             });
         });
         layout.addView(ub);
 
         // --- Pack ---
         TextView pl = new TextView(this);
-        pl.setText("\n打包 目录 → PAK"); pl.setTextSize(16);
+        pl.setText("\n" + getString(R.string.pak_pack)); pl.setTextSize(16);
         layout.addView(pl);
-        EditText pd = new EditText(this); pd.setHint("源目录"); pd.setTextSize(14);
+        EditText pd = new EditText(this); pd.setHint(getString(R.string.pak_pack_hint_dir)); pd.setTextSize(14);
         layout.addView(pd);
-        EditText po = new EditText(this); po.setHint("输出 PAK"); po.setTextSize(14);
+        EditText po = new EditText(this); po.setHint(getString(R.string.pak_pack_hint_pak)); po.setTextSize(14);
         layout.addView(po);
-        Button pb = new Button(this); pb.setText("打包");
+        Button pb = new Button(this); pb.setText(getString(R.string.pak_pack_btn));
         pb.setOnClickListener(v -> {
             String d = pd.getText().toString().trim(), o = po.getText().toString().trim();
-            if (d.isEmpty() || o.isEmpty()) { Toast.makeText(this, "请填写路径", Toast.LENGTH_SHORT).show(); return; }
+            if (d.isEmpty() || o.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
             startOp(() -> {
                 boolean ok = PakTool.pack(d, o, null);
-                mHandler.post(() -> mStatus.setText(ok ? ("打包完成: " + o) : "打包失败"));
+                mHandler.post(() -> mStatus.setText(ok ?
+                    getString(R.string.pak_complete, o) : getString(R.string.pak_failed)));
             });
         });
         layout.addView(pb);
 
         // --- Merge ---
         TextView ml = new TextView(this);
-        ml.setText("\n合并 PAK (逗号分隔多个输入)"); ml.setTextSize(16);
+        ml.setText("\n" + getString(R.string.pak_merge)); ml.setTextSize(16);
         layout.addView(ml);
-        EditText mi = new EditText(this); mi.setHint("输入 PAK 路径, 用逗号分隔"); mi.setTextSize(14);
+        EditText mi = new EditText(this); mi.setHint(getString(R.string.pak_merge_hint_in)); mi.setTextSize(14);
         layout.addView(mi);
-        EditText mo = new EditText(this); mo.setHint("输出 PAK 路径"); mo.setTextSize(14);
+        EditText mo = new EditText(this); mo.setHint(getString(R.string.pak_merge_hint_out)); mo.setTextSize(14);
         layout.addView(mo);
-        Button mb = new Button(this); mb.setText("合并 PAK");
+        Button mb = new Button(this); mb.setText(getString(R.string.pak_merge_btn));
         mb.setOnClickListener(v -> {
             String[] ins = mi.getText().toString().split(",");
             String out = mo.getText().toString().trim();
-            if (ins.length < 2 || out.isEmpty()) { Toast.makeText(this, "至少2个输入+输出", Toast.LENGTH_SHORT).show(); return; }
+            if (ins.length < 2 || out.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
             String[] trimmed = new String[ins.length];
             for (int i = 0; i < ins.length; i++) trimmed[i] = ins[i].trim();
             startOp(() -> {
                 boolean ok = PakTool.merge(out, null, trimmed);
-                mHandler.post(() -> mStatus.setText(ok ? ("合并完成: " + out) : "合并失败"));
+                mHandler.post(() -> mStatus.setText(ok ?
+                    getString(R.string.pak_complete, out) : getString(R.string.pak_failed)));
             });
         });
         layout.addView(mb);
 
         // --- Atlas unpack ---
         TextView al = new TextView(this);
-        al.setText("\nAtlas 解包 → 精灵坐标"); al.setTextSize(16);
+        al.setText("\n" + getString(R.string.pak_atlas_unpack)); al.setTextSize(16);
         layout.addView(al);
-        EditText ai = new EditText(this); ai.setHint(".atlas 路径"); ai.setTextSize(14);
+        EditText ai = new EditText(this); ai.setHint(getString(R.string.pak_atlas_unpack_hint)); ai.setTextSize(14);
         layout.addView(ai);
-        EditText ao = new EditText(this); ao.setHint("输出目录"); ao.setTextSize(14);
+        EditText ao = new EditText(this); ao.setHint(getString(R.string.pak_unpack_hint_dir)); ao.setTextSize(14);
         layout.addView(ao);
-        Button ab = new Button(this); ab.setText("解包 Atlas");
+        Button ab = new Button(this); ab.setText(getString(R.string.pak_atlas_unpack_btn));
         ab.setOnClickListener(v -> {
             String i = ai.getText().toString().trim(), o = ao.getText().toString().trim();
-            if (i.isEmpty() || o.isEmpty()) { Toast.makeText(this, "请填写路径", Toast.LENGTH_SHORT).show(); return; }
+            if (i.isEmpty() || o.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
             startOp(() -> {
                 boolean ok = PakTool.atlasUnpack(i, o);
-                mHandler.post(() -> mStatus.setText(ok ? ("完成: " + o) : "失败"));
+                mHandler.post(() -> mStatus.setText(ok ?
+                    getString(R.string.pak_complete, o) : getString(R.string.pak_failed)));
             });
         });
         layout.addView(ab);
 
         // --- Atlas pack ---
         TextView apl = new TextView(this);
-        apl.setText("\nAtlas 打包 PNG → .atlas + .png"); apl.setTextSize(16);
+        apl.setText("\n" + getString(R.string.pak_atlas_pack)); apl.setTextSize(16);
         layout.addView(apl);
-        EditText apd = new EditText(this); apd.setHint("PNG 目录"); apd.setTextSize(14);
+        EditText apd = new EditText(this); apd.setHint(getString(R.string.pak_atlas_pack_hint_dir)); apd.setTextSize(14);
         layout.addView(apd);
-        EditText apa = new EditText(this); apa.setHint("输出 .atlas"); apa.setTextSize(14);
+        EditText apa = new EditText(this); apa.setHint(getString(R.string.pak_atlas_pack_hint_atlas)); apa.setTextSize(14);
         layout.addView(apa);
-        EditText app = new EditText(this); app.setHint("输出 .png"); app.setTextSize(14);
+        EditText app = new EditText(this); app.setHint(getString(R.string.pak_atlas_pack_hint_png)); app.setTextSize(14);
         layout.addView(app);
-        Button apb = new Button(this); apb.setText("打包 Atlas");
+        Button apb = new Button(this); apb.setText(getString(R.string.pak_atlas_pack_btn));
         apb.setOnClickListener(v -> {
             String d = apd.getText().toString().trim(), a = apa.getText().toString().trim(), p = app.getText().toString().trim();
-            if (d.isEmpty() || a.isEmpty() || p.isEmpty()) { Toast.makeText(this, "请填写所有路径", Toast.LENGTH_SHORT).show(); return; }
+            if (d.isEmpty() || a.isEmpty() || p.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
             startOp(() -> {
                 boolean ok = PakTool.atlasPack(d, a, p);
-                mHandler.post(() -> mStatus.setText(ok ? ("完成: " + a) : "失败"));
+                mHandler.post(() -> mStatus.setText(ok ?
+                    getString(R.string.pak_complete, a) : getString(R.string.pak_failed)));
             });
         });
         layout.addView(apb);

@@ -1,4 +1,4 @@
-package io.github.libxposed.example;
+package com.deadcells.modding;
 
 public class AssetReplacer {
     static {
