@@ -2,13 +2,13 @@
 
 > [中文 / Chinese](README_CN.md)
 
-A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LSPosed](https://github.com/LSPosed/LSPosed) module based on the [libxposed/example](https://github.com/libxposed/example) template.
+A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LSPosed](https://github.com/LSPosed/LSPosed) module based on the [libxposed/example](https://github.com/libxposed/example) template. It doubles as a standalone PAK/Atlas toolkit that works without root.
 
 > **Disclaimer:** This project was created via vibe coding (AI-assisted development). Code quality may vary. Use at your own risk.
 
 ## Features
 
-### Asset Injection (Runtime)
+### Asset Injection (Runtime — requires LSPosed)
 
 | Feature | Description | Status |
 |---------|-------------|--------|
@@ -17,7 +17,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | PAD path redirection | Support for Google Play Asset Delivery paths (global version) | ✅ Working |
 | Native hook | Hooks `AAssetManager_open` + `open()` syscall via LSPlant | ✅ Working |
 
-### PAK Toolkit (Offline, via module app UI)
+### PAK Toolkit (Offline — no root required)
 
 | Feature | Description | Status |
 |---------|-------------|--------|
@@ -54,7 +54,7 @@ Mod files go to:
 
 ## Building
 
-1. Install Android SDK with `platforms;android-36`, `build-tools;36.1.0`, `ndk;28.2.13676358`, `cmake;3.31.6`
+1. Install Android SDK with `platforms;android-36`, `ndk;28.2.13676358`, `cmake;3.31.6`
 2. Set `ANDROID_HOME` environment variable
 3. Build the module:
    ```bash

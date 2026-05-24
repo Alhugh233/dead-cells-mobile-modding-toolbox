@@ -2,13 +2,13 @@
 
 > [English / 英文](README.md)
 
-基于 [libxposed/example](https://github.com/libxposed/example) 模板构建的 [LSPosed](https://github.com/LSPosed/LSPosed) 模块，提供死亡细胞手机版的多种模组功能。
+基于 [libxposed/example](https://github.com/libxposed/example) 模板构建的 [LSPosed](https://github.com/LSPosed/LSPosed) 模块，同时也是一个无需 root 即可使用的 PAK/Atlas 离线工具。
 
 > **免责声明：** 本项目通过 vibe coding（AI 辅助开发）创建。代码质量可能参差不齐。使用需自担风险。
 
 ## 功能
 
-### 资产注入（运行时）
+### 资产注入（运行时 — 需要 LSPosed）
 
 | 功能 | 描述 | 状态 |
 |------|------|------|
@@ -17,7 +17,7 @@
 | PAD 路径重定向 | 支持 Google Play Asset Delivery 路径（国际版） | ✅ 可用 |
 | Native Hook | 通过 LSPlant Hook `AAssetManager_open` + `open()` 系统调用 | ✅ 可用 |
 
-### PAK 工具箱（离线，通过模块应用界面操作）
+### PAK 工具箱（离线 — 无需 root）
 
 | 功能 | 描述 | 状态 |
 |------|------|------|
@@ -54,7 +54,7 @@ Mod 文件存放路径：
 
 ## 构建
 
-1. 安装 Android SDK（包含 `platforms;android-36`、`build-tools;36.1.0`、`ndk;28.2.13676358`、`cmake;3.31.6`）
+1. 安装 Android SDK（包含 `platforms;android-36`、`ndk;28.2.13676358`、`cmake;3.31.6`）
 2. 设置 `ANDROID_HOME` 环境变量
 3. 构建模块：
    ```bash
