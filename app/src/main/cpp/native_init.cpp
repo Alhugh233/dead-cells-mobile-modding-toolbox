@@ -533,7 +533,8 @@ typedef int (*PFN_open)(const char*, int);
 static PFN_open orig_open = nullptr;
 
 static int hook_open(const char* pathname, int flags) {
-    if (pathname && strstr(pathname, "assetpacks")) {
+    // Only intercept when we have targets (mod files)
+    if (!g_targets.empty() && pathname && strstr(pathname, "assetpacks")) {
         const char* slash = strrchr(pathname, '/');
         if (slash) {
             std::string fname(slash + 1);
