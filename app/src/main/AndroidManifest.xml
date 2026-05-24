@@ -10,7 +10,7 @@
     <application
         android:name=".App"
         android:description="@android:string/unknownName"
-        android:label="DCMMT"
+        android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:ignore="MissingApplicationIcon">
         <activity
@@ -24,10 +24,14 @@
         <activity
             android:name=".PakActivity"
             android:exported="false"
-            android:label="PAK 工具" />
+            android:label="@string/pak_title" />
+        <activity
+            android:name=".AtlasActivity"
+            android:exported="false"
+            android:label="@string/atlas_title" />
         <activity
             android:name=".AboutActivity"
             android:exported="false"
-            android:label="致谢" />
+            android:label="@string/about" />
     </application>
 </manifest>

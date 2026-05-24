@@ -41,4 +41,21 @@
     <string name="pak_complete">Done: %s</string>
     <string name="pak_failed">Failed</string>
     <string name="pak_no_permission">No storage permission</string>
+
+    <!-- Atlas -->
+    <string name="atlas_title">Atlas Tool (Experimental)</string>
+    <string name="atlas_launch_btn">Open Atlas Tool</string>
+    <string name="atlas_launch_hint">Atlas Tool (In Dev)</string>
+
+    <!-- About -->
+    <string name="about_dccm_name">DCCM — Dead Cells Core Modding</string>
+    <string name="about_dccm_desc">PAK / Atlas / CDB format implementation\nhttps://github.com/dead-cells-core-modding/core\nLicensed under MIT</string>
+    <string name="about_visit_dccm">Visit DCCM</string>
+    <string name="about_alive_name">alivecells</string>
+    <string name="about_alive_desc">PAK / Atlas format implementation and tooling\nhttps://github.com/N3rdL0rd/alivecells\nLicensed under MIT</string>
+    <string name="about_visit_alive">Visit alivecells</string>
+
+    <!-- Toast -->
+    <string name="toast_scope_ok">OK: %s</string>
+    <string name="toast_scope_fail">Failed: %s</string>
 </resources>

@@ -30,23 +30,21 @@ public class AboutActivity extends Activity {
         layout.addView(space1);
 
         TextView dccm = new TextView(this);
-        dccm.setText("DCCM — Dead Cells Core Modding");
+        dccm.setText(getString(R.string.about_dccm_name));
         dccm.setTextSize(18);
         dccm.setGravity(Gravity.CENTER);
         layout.addView(dccm);
 
         TextView dccmDesc = new TextView(this);
-        dccmDesc.setText("PAK / Atlas / CDB 解打包功能参考其实现\nhttps://github.com/dead-cells-core-modding/core\nLicensed under MIT");
+        dccmDesc.setText(getString(R.string.about_dccm_desc));
         dccmDesc.setTextSize(14);
         dccmDesc.setGravity(Gravity.CENTER);
         layout.addView(dccmDesc);
 
         Button dccmBtn = new Button(this);
-        dccmBtn.setText("访问 DCCM");
-        dccmBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/dead-cells-core-modding/core"));
-            startActivity(intent);
-        });
+        dccmBtn.setText(getString(R.string.about_visit_dccm));
+        dccmBtn.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW,
+            Uri.parse("https://github.com/dead-cells-core-modding/core"))));
         layout.addView(dccmBtn);
 
         TextView space2 = new TextView(this);
@@ -54,23 +52,21 @@ public class AboutActivity extends Activity {
         layout.addView(space2);
 
         TextView alive = new TextView(this);
-        alive.setText("alivecells");
+        alive.setText(getString(R.string.about_alive_name));
         alive.setTextSize(18);
         alive.setGravity(Gravity.CENTER);
         layout.addView(alive);
 
         TextView aliveDesc = new TextView(this);
-        aliveDesc.setText("PAK / Atlas 解打包功能参考其实现\nhttps://github.com/N3rdL0rd/alivecells\nLicensed under MIT");
+        aliveDesc.setText(getString(R.string.about_alive_desc));
         aliveDesc.setTextSize(14);
         aliveDesc.setGravity(Gravity.CENTER);
         layout.addView(aliveDesc);
 
         Button aliveBtn = new Button(this);
-        aliveBtn.setText("访问 alivecells");
-        aliveBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/N3rdL0rd/alivecells"));
-            startActivity(intent);
-        });
+        aliveBtn.setText(getString(R.string.about_visit_alive));
+        aliveBtn.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW,
+            Uri.parse("https://github.com/N3rdL0rd/alivecells"))));
         layout.addView(aliveBtn);
 
         setContentView(layout);

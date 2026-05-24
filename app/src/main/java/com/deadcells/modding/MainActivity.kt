@@ -24,14 +24,14 @@ class MainActivity : Activity(), App.ServiceStateListener {
     private val mCallback = object : OnScopeEventListener {
         override fun onScopeRequestApproved(approved: List<String>) {
             runOnUiThread {
-                Toast.makeText(this@MainActivity, "OK: $approved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, getString(R.string.toast_scope_ok, approved.toString()), Toast.LENGTH_SHORT).show()
                 binding.scope.text = mService?.scope?.joinToString("\n")
             }
         }
 
         override fun onScopeRequestFailed(message: String) {
             runOnUiThread {
-                Toast.makeText(this@MainActivity, "Failed: $message", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, getString(R.string.toast_scope_fail, message), Toast.LENGTH_SHORT).show()
             }
         }
     }

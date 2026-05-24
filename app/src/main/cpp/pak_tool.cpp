@@ -6,10 +6,13 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <algorithm>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <jni.h>
 #include "log_bridge.h"
+#include "stb_image.h"
+#include "stb_image_write.h"
 
 /* ─── Little-endian I/O ───────────────────────────────────────────── */
 
@@ -369,26 +372,20 @@ static bool atlas_unpack(const char* atlas_path, const char* out_dir) {
     std::vector<AtlasGroup> groups;
 
     while (p < end) {
-        std::string atlas_name = read_cstring(p, end);
+        // Atlas names are length-prefixed (1 or 3 bytes), same as PAK names
+        std::string atlas_name = read_name(p, false);
         if (atlas_name.empty()) break;
+        LOGI_PAK("  group: '%s'", atlas_name.c_str());
         AtlasGroup grp;
         grp.name = atlas_name;
         while (p < end) {
-            std::string sprite_name = read_cstring(p, end);
+            // Sprite names are also length-prefixed
+            std::string sprite_name = read_name(p, false);
             if (sprite_name.empty()) break;
-            // Fixup: if name ends with _digits, split
             std::string base = sprite_name;
-            // Fixup: strip trailing _digits from name
-            auto pos = base.rfind('_');
-            if (pos != std::string::npos) {
-                bool all_digits = true;
-                for (size_t i = pos + 1; i < base.size(); i++)
-                    if (base[i] < '0' || base[i] > '9') { all_digits = false; break; }
-                if (all_digits) base = base.substr(0, pos);
-            }
             if (p + 18 > end) { LOGE_PAK("Truncated sprite entry"); return false; }
             AtlasSprite sp;
-            sp.name = base;
+            sp.name = base;  // keep original name with _idx suffix
             sp.idx  = read_u16(p);
             sp.x    = read_u16(p);
             sp.y    = read_u16(p);
@@ -405,21 +402,70 @@ static bool atlas_unpack(const char* atlas_path, const char* out_dir) {
 
     mkdirs(out_dir);
 
+    // Derive atlas texture directory (same dir as .atlas file)
+    std::string atlas_dir = atlas_path;
+    auto slash = atlas_dir.rfind('/');
+    if (slash != std::string::npos) atlas_dir = atlas_dir.substr(0, slash);
+    else atlas_dir = ".";
+
     for (auto& grp : groups) {
+        // --- Save coordinates text (always) ---
         std::string txt_path = std::string(out_dir) + "/" + grp.name + ".txt";
         FILE* out = fopen(txt_path.c_str(), "w");
-        if (!out) continue;
-        fprintf(out, "texture: %s.png\n", grp.name.c_str());
-        fprintf(out, "sprites: %zu\n\n", grp.sprites.size());
-        for (auto& sp : grp.sprites) {
-            fprintf(out, "%-40s  idx=%-4u  xy=(%5u,%5u)  wh=(%4u,%4u)  "
-                    "off=(%4d,%4d)  real=(%4u,%4u)\n",
-                    sp.name.c_str(), sp.idx,
-                    sp.x, sp.y, sp.w, sp.h,
-                    sp.offx, sp.offy, sp.ow, sp.oh);
+        if (out) {
+            fprintf(out, "texture: %s.png\n", grp.name.c_str());
+            fprintf(out, "sprites: %zu\n\n", grp.sprites.size());
+            for (auto& sp : grp.sprites) {
+                fprintf(out, "%-40s  idx=%-4u  xy=(%5u,%5u)  wh=(%4u,%4u)  "
+                        "off=(%4d,%4d)  real=(%4u,%4u)\n",
+                        sp.name.c_str(), sp.idx,
+                        sp.x, sp.y, sp.w, sp.h,
+                        sp.offx, sp.offy, sp.ow, sp.oh);
+            }
+            fclose(out);
         }
-        fclose(out);
-        LOGI_PAK("  atlas %s: %zu sprites", grp.name.c_str(), grp.sprites.size());
+
+        // --- Extract individual sprites as PNGs ---
+        std::string png_path = atlas_dir + "/" + grp.name;
+        LOGI_PAK("  looking for texture: %s", png_path.c_str());
+        // Check if file exists before attempting stbi_load
+        FILE* check = fopen(png_path.c_str(), "rb");
+        if (!check) {
+            LOGE_PAK("  texture not found: %s", png_path.c_str());
+            continue;
+        }
+        fclose(check);
+        int tw = 0, th = 0, tc = 0;
+        uint8_t* tex_data = stbi_load(png_path.c_str(), &tw, &th, &tc, 4);
+        if (!tex_data) {
+            LOGE_PAK("  failed to load texture: %s", png_path.c_str());
+            continue;
+        }
+            std::string sprite_dir = std::string(out_dir) + "/" + grp.name;
+            // Strip .png suffix from group name for directory
+            if (sprite_dir.size() > 4 && sprite_dir.substr(sprite_dir.size() - 4) == ".png")
+                sprite_dir = sprite_dir.substr(0, sprite_dir.size() - 4);
+            mkdirs(sprite_dir);
+            for (auto& sp : grp.sprites) {
+                if (sp.x + sp.w > (uint16_t)tw || sp.y + sp.h > (uint16_t)th) continue;
+                // Extract sprite pixels (with real-size canvas for proper positioning)
+                int bw = (int)sp.ow, bh = (int)sp.oh;  // real (output) size
+                if (bw == 0 || bh == 0) { bw = sp.w; bh = sp.h; }
+                std::vector<uint8_t> out_pixels(bw * bh * 4, 0);
+                // Copy trimmed rect from atlas into output canvas at (offx, offy)
+                for (int row = 0; row < (int)sp.h; row++) {
+                    int src_row = (int)sp.y + row;
+                    int dst_row = (int)sp.offy + row;
+                    if (dst_row >= bh) break;
+                    memcpy(out_pixels.data() + (dst_row * bw + (int)sp.offx) * 4,
+                           tex_data + (src_row * tw + (int)sp.x) * 4,
+                           (int)sp.w * 4);
+                }
+                std::string spr_path = sprite_dir + "/" + sp.name + ".png";
+                stbi_write_png(spr_path.c_str(), bw, bh, 4, out_pixels.data(), bw * 4);
+                LOGI_PAK("  sprite: %s (%dx%d)", spr_path.c_str(), bw, bh);
+            }
+            stbi_image_free(tex_data);
     }
     LOGI_PAK("Atlas unpack complete: %zu groups", groups.size());
     return true;

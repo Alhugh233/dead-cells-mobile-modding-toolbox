@@ -41,4 +41,21 @@
     <string name="pak_complete">完成: %s</string>
     <string name="pak_failed">失败</string>
     <string name="pak_no_permission">未授予文件访问权限</string>
+
+    <!-- Atlas -->
+    <string name="atlas_title">Atlas 工具 (实验性)</string>
+    <string name="atlas_launch_btn">打开 Atlas 工具</string>
+    <string name="atlas_launch_hint">Atlas 工具 (开发中)</string>
+
+    <!-- About -->
+    <string name="about_dccm_name">DCCM — Dead Cells Core Modding</string>
+    <string name="about_dccm_desc">PAK / Atlas / CDB 格式实现\nhttps://github.com/dead-cells-core-modding/core\nLicensed under MIT</string>
+    <string name="about_visit_dccm">访问 DCCM</string>
+    <string name="about_alive_name">alivecells</string>
+    <string name="about_alive_desc">PAK / Atlas 格式实现及工具\nhttps://github.com/N3rdL0rd/alivecells\nLicensed under MIT</string>
+    <string name="about_visit_alive">访问 alivecells</string>
+
+    <!-- Toast -->
+    <string name="toast_scope_ok">成功: %s</string>
+    <string name="toast_scope_fail">失败: %s</string>
 </resources>

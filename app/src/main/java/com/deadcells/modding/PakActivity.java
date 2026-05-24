@@ -144,47 +144,14 @@ public class PakActivity extends Activity {
         });
         layout.addView(mb);
 
-        // --- Atlas unpack ---
+        // --- Launch Atlas tool ---
         TextView al = new TextView(this);
-        al.setText("\n" + getString(R.string.pak_atlas_unpack)); al.setTextSize(16);
+        al.setText("\n" + getString(R.string.atlas_launch_hint)); al.setTextSize(12);
         layout.addView(al);
-        EditText ai = new EditText(this); ai.setHint(getString(R.string.pak_atlas_unpack_hint)); ai.setTextSize(14);
-        layout.addView(ai);
-        EditText ao = new EditText(this); ao.setHint(getString(R.string.pak_unpack_hint_dir)); ao.setTextSize(14);
-        layout.addView(ao);
-        Button ab = new Button(this); ab.setText(getString(R.string.pak_atlas_unpack_btn));
-        ab.setOnClickListener(v -> {
-            String i = ai.getText().toString().trim(), o = ao.getText().toString().trim();
-            if (i.isEmpty() || o.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
-            startOp(() -> {
-                boolean ok = PakTool.atlasUnpack(i, o);
-                mHandler.post(() -> mStatus.setText(ok ?
-                    getString(R.string.pak_complete, o) : getString(R.string.pak_failed)));
-            });
-        });
-        layout.addView(ab);
-
-        // --- Atlas pack ---
-        TextView apl = new TextView(this);
-        apl.setText("\n" + getString(R.string.pak_atlas_pack)); apl.setTextSize(16);
-        layout.addView(apl);
-        EditText apd = new EditText(this); apd.setHint(getString(R.string.pak_atlas_pack_hint_dir)); apd.setTextSize(14);
-        layout.addView(apd);
-        EditText apa = new EditText(this); apa.setHint(getString(R.string.pak_atlas_pack_hint_atlas)); apa.setTextSize(14);
-        layout.addView(apa);
-        EditText app = new EditText(this); app.setHint(getString(R.string.pak_atlas_pack_hint_png)); app.setTextSize(14);
-        layout.addView(app);
-        Button apb = new Button(this); apb.setText(getString(R.string.pak_atlas_pack_btn));
-        apb.setOnClickListener(v -> {
-            String d = apd.getText().toString().trim(), a = apa.getText().toString().trim(), p = app.getText().toString().trim();
-            if (d.isEmpty() || a.isEmpty() || p.isEmpty()) { Toast.makeText(this, getString(R.string.pak_fill_paths), Toast.LENGTH_SHORT).show(); return; }
-            startOp(() -> {
-                boolean ok = PakTool.atlasPack(d, a, p);
-                mHandler.post(() -> mStatus.setText(ok ?
-                    getString(R.string.pak_complete, a) : getString(R.string.pak_failed)));
-            });
-        });
-        layout.addView(apb);
+        Button atlBtn = new Button(this);
+        atlBtn.setText(getString(R.string.atlas_launch_btn));
+        atlBtn.setOnClickListener(v -> startActivity(new Intent(this, AtlasActivity.class)));
+        layout.addView(atlBtn);
 
         mStatus = new TextView(this);
         mStatus.setTextSize(13);
