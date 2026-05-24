@@ -4,7 +4,6 @@
 /.idea
 /captures
 /local.properties
-/keystore.properties
 build/
 .cxx/
 *.apk

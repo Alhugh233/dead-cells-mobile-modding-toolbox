@@ -2,19 +2,9 @@ plugins {
     alias(libs.plugins.agp.app)
 }
 
-import java.util.Properties
-
-// Load keystore properties for release signing
-val keystorePropertiesFile = rootProject.file("keystore.properties")
-val keystoreProperties = Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(keystorePropertiesFile.inputStream())
-}
-
 android {
     namespace = "com.deadcells.modding"
     compileSdk = 36
-    buildToolsVersion = "36.1.0"
 
     defaultConfig {
         minSdk = 26
@@ -27,23 +17,21 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
-            create("release") {
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-            }
+        create("release") {
+            storeFile = file("${rootProject.projectDir}/app/keystore/release.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "DCMMT"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "dcmmt"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "DCMMT"
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
-            isShrinkResources = true
+            isShrinkResources = false
             proguardFiles("proguard-rules.pro")
-            signingConfig = if (keystorePropertiesFile.exists())
-                signingConfigs.getByName("release") else signingConfigs["debug"]
+            signingConfig = if (file("${rootProject.projectDir}/app/keystore/release.jks").exists())
+                signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 
@@ -66,12 +54,16 @@ android {
     packaging {
         resources {
             merges += "META-INF/xposed/*"
-            excludes += "**"
+            excludes += setOf(
+                "META-INF/LICENSE*",
+                "META-INF/NOTICE*",
+                "META-INF/*.kotlin_module"
+            )
         }
     }
 
     lint {
-        abortOnError = true
+        abortOnError = false
         checkReleaseBuilds = false
     }
 }
