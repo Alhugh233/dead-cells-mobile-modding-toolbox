@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <cstdio>
+#include <cstdarg>
 #include <cerrno>
 #include <climits>
 #include <string>
@@ -528,12 +529,16 @@ static int hook_AAsset_openFileDescriptor64(AAsset* asset, off64_t* outStart, of
 // storing them on the filesystem.  The native code reads them with
 // plain open() instead of AAssetManager_open.  We hook open() to
 // redirect PAD paths → mod directory when the filename matches.
+//
+// NOTE: open() is variadic (const char*, int, mode_t).  We must
+// preserve the 3rd argument (mode) when O_CREAT is set, otherwise
+// newly-created files get garbage permissions (e.g. 000) which
+// breaks save-game file creation.
 
-typedef int (*PFN_open)(const char*, int);
+typedef int (*PFN_open)(const char*, int, ...);
 static PFN_open orig_open = nullptr;
 
-static int hook_open(const char* pathname, int flags) {
-    // Only intercept when we have targets (mod files)
+static int hook_open(const char* pathname, int flags, ...) {
     if (!g_targets.empty() && pathname && strstr(pathname, "assetpacks")) {
         const char* slash = strrchr(pathname, '/');
         if (slash) {
@@ -541,9 +546,22 @@ static int hook_open(const char* pathname, int flags) {
             auto it = g_targets.find(fname);
             if (it != g_targets.end()) {
                 LOGI("open redirect: %s -> %s", pathname, it->second.c_str());
+                if (flags & O_CREAT) {
+                    va_list ap; va_start(ap, flags);
+                    mode_t mode = va_arg(ap, mode_t);
+                    va_end(ap);
+                    return orig_open(it->second.c_str(), flags, mode);
+                }
                 return orig_open(it->second.c_str(), flags);
             }
         }
+    }
+    // Preserve mode for O_CREAT
+    if (flags & O_CREAT) {
+        va_list ap; va_start(ap, flags);
+        mode_t mode = va_arg(ap, mode_t);
+        va_end(ap);
+        return orig_open(pathname, flags, mode);
     }
     return orig_open(pathname, flags);
 }
