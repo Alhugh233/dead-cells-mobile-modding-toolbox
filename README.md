@@ -17,7 +17,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | PAD path redirection | Support for Google Play Asset Delivery paths (global version) | ✅ Working |
 | Native hook | Hooks `AAssetManager_open` + `open()` syscall via LSPlant | ✅ Working |
 
-> If the mod version does not match the game version, you can try the **PAK merge** approach: use the built-in merge tool to merge the mod's `.pak` into one of the game's existing asset files (e.g. merge `res5.pak` into `res2.pak`). This forces the game to treat the mod content as built-in resources, bypassing version checks — but may cause unexpected issues.
+> If the mod version does not match the game version, you can try the **PAK merge** approach: use the built-in merge tool to merge the mod's `.pak` into one of the game's existing asset files (e.g. merge `res5.pak` into `res4.pak`). This forces the game to treat the mod content as built-in resources, bypassing version checks — but may cause unexpected issues.
 
 ### PAK Toolkit (Offline — no root required)
 
