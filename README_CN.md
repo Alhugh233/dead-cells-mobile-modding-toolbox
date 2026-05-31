@@ -28,7 +28,6 @@
 | PAK 合并 | 将多个 `.pak` 合并为一个（同名覆盖） | ✅ 可用 |
 | Atlas 解包 | 将 `.atlas`（BATL）提取为独立 PNG 精灵 + 坐标 | ⚠️ 实验性 |
 | Atlas 打包 | 从精灵图片构建 `.atlas` + 纹理 PNG | ⚠️ 实验性 |
-| MO ↔ PO | MO/PO 转换（gettext） | ❌ 已移除 — 游戏使用非标准格式 |
 
 ### 支持的版本
 
@@ -58,19 +57,23 @@ Mod 文件存放路径：
 
 ## 构建
 
-1. 安装 Android SDK（包含 `platforms;android-36`、`ndk;28.2.13676358`、`cmake;3.31.6`）
-2. 设置 `ANDROID_HOME` 环境变量
-3. 构建模块：
-   ```bash
-   cd /path/to/example && ./gradlew assembleDebug
-   ```
-4. 输出：`app/build/outputs/apk/debug/app-debug.apk`
+**环境要求：** Android SDK `platforms;android-37.0`、`ndk;27.0.12077973`、`cmake;3.31.6`。  
+Gradle 9.4.1 由 wrapper 自动下载。
+
+```bash
+git clone https://github.com/Alhugh233/dead-cells-mobile-modding-toolbox
+cd dead-cells-mobile-modding-toolbox
+./gradlew assembleDebug
+```
+
+输出：`app/build/outputs/apk/debug/app-debug.apk`
 
 ## 致谢
 
-本项目包含以下 MIT 许可的开源代码和格式参考：
-- **[DCCM — Dead Cells Core Modding](https://github.com/dead-cells-core-modding/core)** — PAK / Atlas / CDB 格式实现
-- **[alivecells](https://github.com/N3rdL0rd/alivecells)** — PAK / Atlas 格式实现及工具
+本项目包含以下开源代码和格式参考：
+- **[DCCM — Dead Cells Core Modding](https://github.com/dead-cells-core-modding/core)** — PAK / Atlas / CDB 格式实现 (MIT)
+- **[alivecells](https://github.com/N3rdL0rd/alivecells)** — PAK / Atlas 格式实现及工具 (MIT)
+- **[Miuix](https://github.com/compose-miuix-ui/miuix)** — Compose Multiplatform UI 组件库 (Apache 2.0)
 
 详见 [NOTICE](NOTICE)。
 
@@ -78,4 +81,4 @@ Mod 文件存放路径：
 
 本项目基于 Apache License 2.0 许可 — 详见 [LICENSE](LICENSE)。
 
-第三方协议：[LICENSE.DCCM](LICENSE.DCCM), [LICENSE.alivecells](LICENSE.alivecells)。
+第三方协议：[LICENSE.DCCM](LICENSE.DCCM), [LICENSE.alivecells](LICENSE.alivecells), [LICENSE.Miuix](LICENSE.Miuix)。

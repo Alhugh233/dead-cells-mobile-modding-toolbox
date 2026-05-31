@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DCMMT</string>
-    <string name="status_loading">正在连接…</string>
     <string name="status_inactive">模块未激活</string>
     <string name="status_active">模块已激活 (API %d)</string>
     <string name="framework_format">%1$s v%2$s</string>
@@ -58,4 +57,12 @@
     <!-- Toast -->
     <string name="toast_scope_ok">成功: %s</string>
     <string name="toast_scope_fail">失败: %s</string>
+
+    <!-- Scope -->
+    <string name="scope_title">模块作用域</string>
+    <string name="scope_count">%d 个应用已授权</string>
+    <string name="scope_none">暂无应用授权</string>
+    <string name="scope_hint">取消勾选会直接移除，勾选将申请权限</string>
+    <string name="scope_scoped">已授权</string>
+    <string name="scope_not_scoped">未授权</string>
 </resources>

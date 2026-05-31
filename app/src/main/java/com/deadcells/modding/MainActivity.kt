@@ -1,47 +1,64 @@
 package com.deadcells.modding
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
-import com.deadcells.modding.databinding.ActivityMainBinding
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.deadcells.modding.ui.theme.DCMMTTheme
 import io.github.libxposed.service.XposedService
-import io.github.libxposed.service.XposedService.OnScopeEventListener
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.preference.ArrowPreference
 
-@SuppressLint("SetTextI18n")
-class MainActivity : Activity(), App.ServiceStateListener {
+class MainActivity : ComponentActivity(), App.ServiceStateListener {
     private var mService: XposedService? = null
-    private lateinit var binding: ActivityMainBinding
+    private var serviceActive by mutableStateOf(false)
+    private var frameworkInfo by mutableStateOf("")
+    private var apiVersion by mutableStateOf(0)
 
-    private val knownPackages = arrayOf(
-        "com.bilibili.deadcells.mobile",
-        "com.playdigious.deadcells.mobile"
-    )
-
-    private val mCallback = object : OnScopeEventListener {
-        override fun onScopeRequestApproved(approved: List<String>) {
-            runOnUiThread {
-                Toast.makeText(this@MainActivity, getString(R.string.toast_scope_ok, approved.toString()), Toast.LENGTH_SHORT).show()
-                binding.scope.text = mService?.scope?.joinToString("\n")
-            }
-        }
-
-        override fun onScopeRequestFailed(message: String) {
-            runOnUiThread {
-                Toast.makeText(this@MainActivity, getString(R.string.toast_scope_fail, message), Toast.LENGTH_SHORT).show()
-            }
-        }
+    private val scopeLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        onServiceStateChanged(mService)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.let {
-            setContentView(it.root)
-            it.binder.text = getString(R.string.status_loading)
+        setContent {
+            DCMMTTheme {
+                MainScreen(
+                    serviceActive = serviceActive,
+                    frameworkInfo = frameworkInfo,
+                    apiVersion = apiVersion,
+                    onOpenScope = { scopeLauncher.launch(Intent(this, ScopeActivity::class.java)) },
+                    onOpenPakTool = { startActivity(Intent(this, PakActivity::class.java)) },
+                    onOpenGitHub = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Alhugh233/dead-cells-mobile-modding-toolbox"))) },
+                    onOpenAbout = { startActivity(Intent(this, AboutActivity::class.java)) }
+                )
+            }
         }
     }
 
@@ -55,53 +72,91 @@ class MainActivity : Activity(), App.ServiceStateListener {
         super.onStop()
     }
 
-    private fun showScopeDialog() {
-        val svc = mService ?: return
-        val currentScope = svc.scope.toSet()
-        val checked = BooleanArray(knownPackages.size) { knownPackages[it] in currentScope }
-
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.request_scope))
-            .setMultiChoiceItems(knownPackages, checked) { _, which, isChecked ->
-                checked[which] = isChecked
-            }
-            .setPositiveButton(getString(R.string.apply)) { _, _ ->
-                val selected = knownPackages.filterIndexed { i, _ -> checked[i] }
-                if (selected.isNotEmpty()) svc.requestScope(selected, mCallback)
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
-    }
-
     override fun onServiceStateChanged(service: XposedService?) {
         mService = service
-        runOnUiThread {
-            binding.pakTool.setOnClickListener {
-                val intent = Intent()
-                intent.setClassName(this@MainActivity, "com.deadcells.modding.PakActivity")
-                startActivity(intent)
-            }
-            binding.about.setOnClickListener {
-                val intent = Intent()
-                intent.setClassName(this@MainActivity, "com.deadcells.modding.AboutActivity")
-                startActivity(intent)
+        serviceActive = service != null
+        apiVersion = service?.apiVersion ?: 0
+        frameworkInfo = if (service != null) {
+            "${service.frameworkName} v${service.frameworkVersion}"
+        } else ""
+    }
+}
+
+@Composable
+fun MainScreen(
+    serviceActive: Boolean,
+    frameworkInfo: String,
+    apiVersion: Int,
+    onOpenScope: () -> Unit,
+    onOpenPakTool: () -> Unit,
+    onOpenGitHub: () -> Unit,
+    onOpenAbout: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = "DCMMT")
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(12.dp)
+        ) {
+            Card(
+                modifier = Modifier.padding(bottom = 12.dp),
+                colors = CardDefaults.defaultColors(
+                    color = if (serviceActive) Color(0xFFDFFAE4) else Color(0xFFFFF3E0)
+                )
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = if (serviceActive) "✓ " + stringResource(R.string.status_active, apiVersion)
+                        else stringResource(R.string.status_inactive),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (frameworkInfo.isNotEmpty()) {
+                        Text(
+                            text = frameworkInfo,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             }
 
-            if (service == null) {
-                binding.binder.text = getString(R.string.status_inactive)
-                binding.framework.text = ""
-                binding.frameworkVersion.text = ""
-                binding.scope.text = ""
-            } else {
-                binding.binder.text = getString(R.string.status_active, service.apiVersion)
-                binding.framework.text = getString(R.string.framework_format,
-                    service.frameworkName, service.frameworkVersion)
-                binding.frameworkVersion.text = ""
-                binding.scope.text = service.scope.joinToString("\n")
-                    .ifEmpty { getString(R.string.scope_required) }
+            BasicComponent(
+                title = stringResource(R.string.request_scope),
+                summary = stringResource(R.string.scope_required),
+                endActions = {
+                    Button(onClick = onOpenScope) {
+                        Text(stringResource(R.string.apply))
+                    }
+                },
+                onClick = onOpenScope
+            )
 
-                binding.requestScope.setOnClickListener { showScopeDialog() }
-            }
+            ArrowPreference(
+                title = stringResource(R.string.pak_tool),
+                summary = "Unpack / Pack / Merge PAK and Atlas files",
+                onClick = onOpenPakTool
+            )
+
+            ArrowPreference(
+                title = "GitHub",
+                summary = "github.com/Alhugh233/dead-cells-mobile-modding-toolbox",
+                onClick = onOpenGitHub
+            )
+
+            ArrowPreference(
+                title = stringResource(R.string.about),
+                summary = "Credits and licenses",
+                onClick = onOpenAbout
+            )
         }
     }
 }

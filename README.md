@@ -28,7 +28,6 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | PAK merge | Merge multiple `.pak` into one (overwrite logic) | ✅ Working |
 | Atlas unpack | Extract `.atlas` (BATL) to individual PNG sprites + coordinates | ⚠️ Experimental |
 | Atlas pack | Build `.atlas` + atlas PNG from individual sprites | ⚠️ Experimental |
-| MO ↔ PO | Convert MO files to/from PO (gettext) | ❌ Removed — game uses non-standard format |
 
 ### Supported Versions
 
@@ -58,19 +57,23 @@ Mod files go to:
 
 ## Building
 
-1. Install Android SDK with `platforms;android-36`, `ndk;28.2.13676358`, `cmake;3.31.6`
-2. Set `ANDROID_HOME` environment variable
-3. Build the module:
-   ```bash
-   cd /path/to/example && ./gradlew assembleDebug
-   ```
-4. Output: `app/build/outputs/apk/debug/app-debug.apk`
+**Requirements:** Android SDK `platforms;android-37.0`, `ndk;27.0.12077973`, `cmake;3.31.6`.  
+Gradle 9.4.1 is auto-downloaded by the wrapper.
+
+```bash
+git clone https://github.com/Alhugh233/dead-cells-mobile-modding-toolbox
+cd dead-cells-mobile-modding-toolbox
+./gradlew assembleDebug
+```
+
+Output: `app/build/outputs/apk/debug/app-debug.apk`
 
 ## Credits
 
-This project incorporates MIT-licensed code and format references from:
-- **[DCCM — Dead Cells Core Modding](https://github.com/dead-cells-core-modding/core)** — PAK / Atlas / CDB format implementation
-- **[alivecells](https://github.com/N3rdL0rd/alivecells)** — PAK / Atlas format implementation and tooling
+This project incorporates code and format references from:
+- **[DCCM — Dead Cells Core Modding](https://github.com/dead-cells-core-modding/core)** — PAK / Atlas / CDB format implementation (MIT)
+- **[alivecells](https://github.com/N3rdL0rd/alivecells)** — PAK / Atlas format implementation and tooling (MIT)
+- **[Miuix](https://github.com/compose-miuix-ui/miuix)** — Compose Multiplatform UI library (Apache 2.0)
 
 See [NOTICE](NOTICE) for details.
 
@@ -78,4 +81,4 @@ See [NOTICE](NOTICE) for details.
 
 This project is licensed under the Apache License 2.0 — see [LICENSE](LICENSE).
 
-Third-party licenses: [LICENSE.DCCM](LICENSE.DCCM), [LICENSE.alivecells](LICENSE.alivecells).
+Third-party licenses: [LICENSE.DCCM](LICENSE.DCCM), [LICENSE.alivecells](LICENSE.alivecells), [LICENSE.Miuix](LICENSE.Miuix).

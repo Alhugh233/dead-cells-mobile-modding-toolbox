@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DCMMT</string>
-    <string name="status_loading">Connecting…</string>
     <string name="status_inactive">Module Inactive</string>
     <string name="status_active">Module Active (API %d)</string>
     <string name="framework_format">%1$s v%2$s</string>
@@ -58,4 +57,12 @@
     <!-- Toast -->
     <string name="toast_scope_ok">OK: %s</string>
     <string name="toast_scope_fail">Failed: %s</string>
+
+    <!-- Scope -->
+    <string name="scope_title">Module Scope</string>
+    <string name="scope_count">%d app(s) scoped</string>
+    <string name="scope_none">No apps scoped</string>
+    <string name="scope_hint">Uncheck removes immediately, check requests permission</string>
+    <string name="scope_scoped">Scoped</string>
+    <string name="scope_not_scoped">Not scoped</string>
 </resources>
