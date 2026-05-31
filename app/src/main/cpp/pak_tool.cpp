@@ -446,25 +446,44 @@ static bool atlas_unpack(const char* atlas_path, const char* out_dir) {
             if (sprite_dir.size() > 4 && sprite_dir.substr(sprite_dir.size() - 4) == ".png")
                 sprite_dir = sprite_dir.substr(0, sprite_dir.size() - 4);
             mkdirs(sprite_dir);
-            for (auto& sp : grp.sprites) {
-                if (sp.x + sp.w > (uint16_t)tw || sp.y + sp.h > (uint16_t)th) continue;
-                // Extract sprite pixels (with real-size canvas for proper positioning)
-                int bw = (int)sp.ow, bh = (int)sp.oh;  // real (output) size
-                if (bw == 0 || bh == 0) { bw = sp.w; bh = sp.h; }
-                std::vector<uint8_t> out_pixels(bw * bh * 4, 0);
-                // Copy trimmed rect from atlas into output canvas at (offx, offy)
-                for (int row = 0; row < (int)sp.h; row++) {
-                    int src_row = (int)sp.y + row;
-                    int dst_row = (int)sp.offy + row;
-                    if (dst_row >= bh) break;
-                    memcpy(out_pixels.data() + (dst_row * bw + (int)sp.offx) * 4,
-                           tex_data + (src_row * tw + (int)sp.x) * 4,
-                           (int)sp.w * 4);
+
+            // Helper lambda: extract sprites from a given texture
+            auto extract_sprites = [&](uint8_t* tex, int tw, int th, const std::string& suffix) {
+                for (auto& sp : grp.sprites) {
+                    if (sp.x + sp.w > (uint16_t)tw || sp.y + sp.h > (uint16_t)th) continue;
+                    int bw = (int)sp.ow, bh = (int)sp.oh;
+                    if (bw == 0 || bh == 0) { bw = sp.w; bh = sp.h; }
+                    std::vector<uint8_t> out_pixels(bw * bh * 4, 0);
+                    for (int row = 0; row < (int)sp.h; row++) {
+                        int src_row = (int)sp.y + row;
+                        int dst_row = (int)sp.offy + row;
+                        if (dst_row >= bh) break;
+                        memcpy(out_pixels.data() + (dst_row * bw + (int)sp.offx) * 4,
+                               tex + (src_row * tw + (int)sp.x) * 4,
+                               (int)sp.w * 4);
+                    }
+                    // Use alivecells naming convention: name-=-idx-=-.png
+                    std::string spr_path = sprite_dir + "/" + sp.name
+                        + "-=-" + std::to_string(sp.idx) + "-=-" + suffix + ".png";
+                    stbi_write_png(spr_path.c_str(), bw, bh, 4, out_pixels.data(), bw * 4);
+                    if (suffix.empty()) LOGI_PAK("  sprite: %s", spr_path.c_str());
                 }
-                std::string spr_path = sprite_dir + "/" + sp.name + ".png";
-                stbi_write_png(spr_path.c_str(), bw, bh, 4, out_pixels.data(), bw * 4);
-                LOGI_PAK("  sprite: %s (%dx%d)", spr_path.c_str(), bw, bh);
+            };
+
+            // Extract normal sprites
+            extract_sprites(tex_data, tw, th, "");
+
+            // Extract normal map sprites from _n.png
+            std::string normal_path = atlas_dir + "/" + grp.name;
+            if (normal_path.size() > 4) normal_path = normal_path.substr(0, normal_path.size() - 4);
+            normal_path += "_n.png";
+            int nw, nh, nc;
+            uint8_t* normal_data = stbi_load(normal_path.c_str(), &nw, &nh, &nc, 4);
+            if (normal_data) {
+                extract_sprites(normal_data, nw, nh, "_n");
+                stbi_image_free(normal_data);
             }
+
             stbi_image_free(tex_data);
     }
     LOGI_PAK("Atlas unpack complete: %zu groups", groups.size());

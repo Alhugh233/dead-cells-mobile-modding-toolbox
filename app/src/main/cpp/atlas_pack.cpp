@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "log_bridge.h"
@@ -63,31 +64,62 @@ static bool pack_rects(std::vector<Rect>& rects, int max_w, int* out_w, int* out
 /* ─── Atlas pack: read PNGs → pack → write atlas PNG + BATL ──────── */
 
 struct InputImage {
-    std::string name; // basename without extension
+    std::string name;
     std::string path;
     uint8_t* data = nullptr;
     int w = 0, h = 0, channels = 0;
+    int idx = 0;
 };
 
 static bool atlas_pack(const char* input_dir, const char* out_atlas, const char* out_png) {
-    // --- 1. Read all PNG files from input directory ---
-    DIR* d = opendir(input_dir);
-    if (!d) { LOGE_ATL("Cannot open: %s", input_dir); return false; }
+    // --- 1. Recursively read all PNG files ---
     std::vector<InputImage> images;
-    struct dirent* e;
-    while ((e = readdir(d)) != nullptr) {
-        std::string name(e->d_name);
-        if (name.size() < 4) continue;
-        if (name.substr(name.size() - 4) != ".png") continue;
-        std::string path = std::string(input_dir) + "/" + name;
-        InputImage img;
-        img.name = name.substr(0, name.size() - 4);
-        img.path = path;
-        img.data = stbi_load(path.c_str(), &img.w, &img.h, &img.channels, 4); // force RGBA
-        if (!img.data) continue;
-        images.push_back(img);
-    }
-    closedir(d);
+
+    size_t input_dir_len = strlen(input_dir);
+    std::function<void(const std::string&)> scan_dir = [&](const std::string& dir) {
+        DIR* d = opendir(dir.c_str());
+        if (!d) return;
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] == '.') continue;
+            std::string path = dir + "/" + e->d_name;
+            if (e->d_type == DT_DIR) {
+                scan_dir(path);
+            } else if (e->d_type == DT_REG || e->d_type == DT_UNKNOWN) {
+                std::string name(e->d_name);
+                if (name.size() < 4) continue;
+                if (name.substr(name.size() - 4) != ".png") continue;
+                if (name.find("_n.") != std::string::npos) continue;
+                InputImage img;
+                // Get relative path, strip .png and -=- markers, use / separator
+                std::string rel = path.substr(input_dir_len);
+                while (!rel.empty() && (rel[0] == '/' || rel[0] == '\\')) rel = rel.substr(1);
+                if (rel.size() > 4) rel = rel.substr(0, rel.size() - 4); // strip .png
+                // Replace \ with /
+                for (auto& c : rel) if (c == '\\') c = '/';
+                // Parse alivecells naming: name-=-idx-=- → extract index
+                int idx = 0;
+                std::string clean = rel;
+                auto p1 = clean.find("-=-");
+                if (p1 != std::string::npos) {
+                    auto p2 = clean.find("-=-", p1 + 3);
+                    if (p2 != std::string::npos) {
+                        std::string idx_str = clean.substr(p1 + 3, p2 - p1 - 3);
+                        try { idx = std::stoi(idx_str); } catch (...) {}
+                        clean = clean.substr(0, p1) + clean.substr(p2 + 3);
+                    }
+                }
+                img.name = clean;
+                img.path = path;
+                img.idx = idx;
+                img.data = stbi_load(path.c_str(), &img.w, &img.h, &img.channels, 4);
+                if (!img.data) continue;
+                images.push_back(img);
+            }
+        }
+        closedir(d);
+    };
+    scan_dir(input_dir);
     if (images.empty()) { LOGE_ATL("No PNG files found"); return false; }
     LOGI_ATL("Loaded %zu images", images.size());
 
@@ -141,33 +173,34 @@ static bool atlas_pack(const char* input_dir, const char* out_atlas, const char*
     }
     LOGI_ATL("Wrote atlas PNG: %s", out_png);
 
-    // --- 6. Write BATL file ---
+    // --- 6. Write BATL file (length-prefixed strings, matching alivecells) ---
     FILE* batl = fopen(out_atlas, "wb");
     if (!batl) { LOGE_ATL("Cannot write: %s", out_atlas); return false; }
     fwrite("BATL", 1, 4, batl);
 
-    // One group per atlas (single atlas for now)
+    // Write group name (length-prefixed, not null-terminated)
     std::string aname = "atlas";
-    fwrite(aname.c_str(), 1, aname.size() + 1, batl); // null-term
+    uint8_t name_len = (uint8_t)aname.size();
+    fwrite(&name_len, 1, 1, batl);
+    fwrite(aname.c_str(), 1, aname.size(), batl);
 
     for (auto& r : rects) {
         auto& img = images[r.id];
-        // Sprite name (no trailing index)
-        fwrite(img.name.c_str(), 1, img.name.size() + 1, batl);
+        // Sprite name (length-prefixed)
+        name_len = (uint8_t)img.name.size();
+        fwrite(&name_len, 1, 1, batl);
+        fwrite(img.name.c_str(), 1, img.name.size(), batl);
 
-        // idx: u16
-        uint8_t idx[2] = {0, 0};
-        fwrite(idx, 1, 2, batl);
-        // x, y, w, h
         auto w16 = [&](int v) { uint8_t b[2] = {(uint8_t)v, (uint8_t)(v>>8)}; fwrite(b, 1, 2, batl); };
+        w16(img.idx); // idx from filename parsing
         w16(r.x); w16(r.y); w16(r.w); w16(r.h);
-        // offx, offy, ow, oh (for now, same as trimmed = no offset)
-        w16(0); w16(0); w16(r.w); w16(r.h);
+        w16(0); w16(0); w16(r.w); w16(r.h); // offx, offy, ow, oh (no trim)
     }
-    // End of sprites (empty name)
-    fputc(0, batl);
-    // End of groups (empty name)
-    fputc(0, batl);
+    // End of sprites: name length 0
+    name_len = 0;
+    fwrite(&name_len, 1, 1, batl);
+    // End of groups: name length 0
+    fwrite(&name_len, 1, 1, batl);
     fclose(batl);
     LOGI_ATL("Wrote BATL: %s", out_atlas);
 
