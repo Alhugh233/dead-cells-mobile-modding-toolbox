@@ -28,7 +28,6 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | PAK merge | Merge multiple `.pak` into one (overwrite logic) | ✅ Working |
 | Atlas unpack | Extract `.atlas` (BATL) to individual PNG sprites + coordinates | ⚠️ Experimental |
 | Atlas pack | Build `.atlas` + atlas PNG from individual sprites | ⚠️ Experimental |
-| MO ↔ PO | Convert MO files to/from PO (gettext) | ❌ Removed — game uses non-standard format |
 
 ### Supported Versions
 

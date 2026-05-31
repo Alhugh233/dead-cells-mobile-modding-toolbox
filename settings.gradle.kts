@@ -17,11 +17,8 @@ dependencyResolutionManagement {
             }
         }
     }
-    versionCatalogs {
-        create("libs")
-    }
 }
 
-rootProject.name = "Xposed Example"
+rootProject.name = "DCMMT"
 
 include(":app")

@@ -1,10 +1,12 @@
 plugins {
-    alias(libs.plugins.agp.app)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.compose")
 }
 
 android {
     namespace = "com.deadcells.modding"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
@@ -36,7 +38,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        compose = true
     }
 
     compileOptions {
@@ -69,6 +71,10 @@ android {
 }
 
 dependencies {
-    compileOnly(libs.libxposed.api)
-    implementation(libs.libxposed.service)
+    compileOnly("io.github.libxposed:api:101.0.1")
+    implementation("io.github.libxposed:service:101.0.0")
+    implementation("top.yukonga.miuix.kmp:miuix-ui:0.9.1")
+    implementation("top.yukonga.miuix.kmp:miuix-preference:0.9.1")
+    implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.11.0-beta01")
+    implementation("androidx.activity:activity-compose:1.13.0")
 }

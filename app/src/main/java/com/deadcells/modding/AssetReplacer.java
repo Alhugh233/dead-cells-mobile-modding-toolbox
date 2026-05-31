@@ -1,9 +1,0 @@
-package com.deadcells.modding;
-
-public class AssetReplacer {
-    static {
-        try { System.loadLibrary("asset_replacer"); } catch (Throwable ignored) {}
-    }
-
-    public static native void nativeInit(String packageName);
-}
