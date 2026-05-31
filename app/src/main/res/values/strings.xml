@@ -21,8 +21,8 @@
     <string name="pak_pack_hint_dir">Source directory</string>
     <string name="pak_pack_hint_pak">Output PAK</string>
     <string name="pak_pack_btn">Pack</string>
-    <string name="pak_merge">Merge PAK (comma-separated)</string>
-    <string name="pak_merge_hint_in">Input PAK paths, comma-separated</string>
+    <string name="pak_merge">Merge PAK (English comma-separated)</string>
+    <string name="pak_merge_hint_in">Input PAK paths, English comma-separated</string>
     <string name="pak_merge_hint_out">Output PAK</string>
     <string name="pak_merge_btn">Merge</string>
     <string name="pak_atlas_unpack">Unpack Atlas → Sprites</string>

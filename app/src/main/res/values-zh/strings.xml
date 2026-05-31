@@ -21,8 +21,8 @@
     <string name="pak_pack_hint_dir">源目录</string>
     <string name="pak_pack_hint_pak">输出 PAK</string>
     <string name="pak_pack_btn">打包</string>
-    <string name="pak_merge">合并 PAK (逗号分隔)</string>
-    <string name="pak_merge_hint_in">输入 PAK 路径，逗号分隔</string>
+    <string name="pak_merge">合并 PAK（英文逗号分隔）</string>
+    <string name="pak_merge_hint_in">输入 PAK 路径，用英文逗号分隔</string>
     <string name="pak_merge_hint_out">输出 PAK</string>
     <string name="pak_merge_btn">合并</string>
     <string name="pak_atlas_unpack">解包 Atlas → 精灵坐标</string>
