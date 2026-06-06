@@ -61,7 +61,7 @@ class ModuleMain : XposedModule() {
 
         val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
 
-        // Create PAD directory with marker files (data served by hook_open redirect)
+        // Create PAD directory with symlinks to mod files
         try {
             val modDir = File("/data/data/$pkg/files/mod")
             val padDirFile = File(padDir)
@@ -73,8 +73,16 @@ class ModuleMain : XposedModule() {
                 }?.forEach { f ->
                     val dest = File(padDirFile, f.name)
                     if (!dest.exists()) {
-                        dest.createNewFile()
-                        log(Log.INFO, TAG, "PAD marker: ${f.name}")
+                        val ok = try {
+                            // Try symlink first (no duplication, immune to overwrite)
+                            java.io.File.createSymbolicLink(dest.toPath(), f.toPath())
+                            true
+                        } catch (_: Throwable) {
+                            // Fallback to hard copy
+                            try { f.copyTo(dest, overwrite = true); true }
+                            catch (_: Throwable) { false }
+                        }
+                        if (ok) log(Log.INFO, TAG, "PAD link: ${f.name}")
                     }
                 }
             }
