@@ -38,7 +38,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 
 > **⚠️ Google Play version note:** The official Google Play build includes **pairip** (Play Integrity / anti-tamper). If you are using the Google Play version, you must enable **"Invalidate inline hooks"** for Dead Cells in LSPosed's module settings. Otherwise pairip will detect the modification and crash the game.
 >
-> **International version PAK injection:** New `.pak` files (e.g. `res5.pak`) are automatically symlinked into a fake PAD asset pack (`AssetPackMod`). The game's native PAD scanning code discovers and loads them alongside the official PAD packs. No manual setup required — just place the file in the mod directory.
+> **Google Play version PAK injection:** New `.pak` files (e.g. `res5.pak`) are automatically symlinked into a fake PAD asset pack (`AssetPackMod`). The game's native PAD scanning code discovers and loads them alongside the official PAD packs. No manual setup required — just place the file in the mod directory.
 >
 > **⚠️ PAD version updates:** When Dead Cells receives an update on the Google Play Store, the PAD asset packs must be re-downloaded. If mods are active during the update, PAD redirection may interfere with the download process. It is recommended to **temporarily disable the module** (uncheck in LSPosed scope) before updating, then re-enable after the update completes.
 >
@@ -50,7 +50,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 The module uses a multi-layer hooking approach:
 
 1. **Native asset hooks** — Hooks `AAssetManager_open`, `openDir`, `getNextFileName`, `read`, `seek`/`seek64`, `close`, `getLength`/`getLength64`, `openFileDescriptor`/`openFileDescriptor64` in `libandroid.so`, plus `open()` in `libc.so` for PAD path redirection
-2. **Java PAD hooks** (international only) — Hooks `Assets.getAssetPackLocation()` / `getAssetPackState()` and `DeadCellsLoading.initAssets()` to auto-inject new `.pak` files as a fake PAD asset pack (`AssetPackMod`), bypassing Google Play PAD IPC
+2. **Java PAD hooks** (Global only) — Hooks `Assets.getAssetPackLocation()` / `getAssetPackState()` and `DeadCellsLoading.initAssets()` to auto-inject new `.pak` files as a fake PAD asset pack (`AssetPackMod`), bypassing Google Play PAD IPC
 3. **Directory-based injection** (CN only) — `openDir` + `getNextFileName` hooks return injected entries alongside original assets, enabling the game's native `mobile_Res_initAssets` second-pass scan to discover new `.pak` files
 
 Mod files go to:
