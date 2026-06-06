@@ -50,7 +50,7 @@ class ModuleMain : XposedModule() {
         val padVersion = try {
             val at = Class.forName("android.app.ActivityThread")
             val app = at.getMethod("currentApplication").invoke(null) as android.app.Application
-            app.packageManager.getPackageInfo(pkg, 0).versionCode.toString()
+            app.packageManager.getPackageInfo(pkg, 0).longVersionCode.toString()
         } catch (_: Throwable) { return }
         val padDir = "/data/data/$pkg/files/assetpacks/$modPackName/$padVersion/$padVersion/assets"
 
