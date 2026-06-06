@@ -75,11 +75,12 @@ class ModuleMain : XposedModule() {
                 val fastField = assetsClass.getDeclaredField("s_fastFollowPacks")
                 fastField.isAccessible = true
                 @Suppress("UNCHECKED_CAST")
-                val list = fastField.get(null) as? MutableList<String>
-                if (list != null && !list.contains(modPackName)) {
-                    list.add(modPackName)
-                    log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks (path=$modDir)")
-                }
+                val oldList = fastField.get(null) as? List<String> ?: return@intercept null
+                if (oldList.contains(modPackName)) return@intercept null
+                val newList = ArrayList(oldList)
+                newList.add(modPackName)
+                fastField.set(null, newList)
+                log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks (path=$modDir)")
                 null
             }
             log(Log.INFO, TAG, "initAssets hook installed")
@@ -96,9 +97,9 @@ class ModuleMain : XposedModule() {
                 cl.loadClass("com.playdigious.hlmobile.AssetPackStateReceived")
             )
             hook(getState).intercept { chain ->
-                val packName = chain.getArg<String>(0)
+                val packName = chain.args[0] as? String
                 if (packName == modPackName) {
-                    val callback = chain.getArg<Any>(1) ?: return@intercept null
+                    val callback = chain.args[1] ?: return@intercept null
                     val onSuccess = callback.javaClass.getMethod("onSuccess", Any::class.java)
                     val stateClass = cl.loadClass("com.google.android.play.core.assetpacks.AssetPackState")
                     val ctor = stateClass.declaredConstructors.first { it.parameterCount == 0 }
