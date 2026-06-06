@@ -46,77 +46,82 @@ class ModuleMain : XposedModule() {
         val pkg = param.packageName
         val modPackName = "AssetPackMod"
 
-        // PAD version = app versionCode
-        val padVersion = try {
-            val at = Class.forName("android.app.ActivityThread")
-            val app = at.getMethod("currentApplication").invoke(null) as android.app.Application
-            val info = app.packageManager.getPackageInfo(pkg, 0)
-            if (android.os.Build.VERSION.SDK_INT >= 28)
-                info.longVersionCode.toString()
-            else info.versionCode.toString()
-        } catch (_: Throwable) { return }
-        val padDir = "/data/data/$pkg/files/assetpacks/$modPackName/$padVersion/$padVersion/assets"
-
-        val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
-
-        // Create PAD directory with symlinks for new PAK files only
-        // No native hook needed — game reads directly through symlink
-        try {
-            val modDir = File("/data/data/$pkg/files/mod")
-            val padDirFile = File(padDir)
-            padDirFile.mkdirs()
-
-            if (modDir.isDirectory) {
-                modDir.listFiles()?.filter {
-                    it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
-                }?.forEach { f ->
-                    val dest = File(padDirFile, f.name)
-                    if (!dest.exists()) {
-                        try {
-                            java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
-                            log(Log.INFO, TAG, "PAD symlink: ${f.name} -> ${f.absolutePath}")
-                        } catch (_: Throwable) {
-                            f.copyTo(dest, overwrite = true)
-                            log(Log.INFO, TAG, "PAD copy: ${f.name}")
-                        }
-                    }
-                }
-            }
-        } catch (t: Throwable) {
-            log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
-        }
-
-        // ── 1. Hook Assets.getAssetPackLocation to return pad dir ──
+        // ── 1. Hook Assets.getAssetPackLocation —— return PAD path ──
+        // Pad version is resolved lazily in initAssets hook below
+        var padDir = ""
         try {
             val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
             val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
-
             hook(getLocation).intercept { chain ->
                 val packName = chain.getArg(0) as? String
-                if (packName == modPackName) padDir else chain.proceed()
+                if (packName == modPackName) {
+                    if (padDir.isEmpty()) chain.proceed() else padDir
+                } else chain.proceed()
             }
             log(Log.INFO, TAG, "getAssetPackLocation hook installed")
         } catch (t: Throwable) {
             log(Log.ERROR, TAG, "Failed to hook getAssetPackLocation", t)
         }
 
-        // ── 2. Inject mod pack into s_fastFollowPacks ─────────────
+        // ── 2. Hook DeadCellsLoading.initAssets —— setup pad + inject pack ──
         try {
             val loadingClass = cl.loadClass("com.playdigious.deadcells.mobile.DeadCellsLoading")
             val initAssetsMethod = loadingClass.getMethod("initAssets", android.app.Activity::class.java)
 
             hook(initAssetsMethod).intercept { chain ->
                 chain.proceed()
+                val activity = chain.getArg(0) as? android.app.Activity ?: return@intercept null
+
+                // Resolve pad version from activity
+                if (padDir.isEmpty()) {
+                    val version = try {
+                        val info = activity.packageManager.getPackageInfo(pkg, 0)
+                        if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode
+                        else @Suppress("DEPRECATION") info.versionCode.toLong()
+                    } catch (_: Throwable) { null } ?: return@intercept null
+                    padDir = "/data/data/$pkg/files/assetpacks/$modPackName/$version/$version/assets"
+                    log(Log.INFO, TAG, "PAD padDir: $padDir")
+                }
+
+                // Create symlinks for new PAK files
+                val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
+                try {
+                    val modDir = File("/data/data/$pkg/files/mod")
+                    val padDirFile = File(padDir)
+                    padDirFile.mkdirs()
+
+                    if (modDir.isDirectory) {
+                        modDir.listFiles()?.filter {
+                            it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
+                        }?.forEach { f ->
+                            val dest = File(padDirFile, f.name)
+                            if (!dest.exists()) {
+                                try {
+                                    java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
+                                    log(Log.INFO, TAG, "PAD symlink: ${f.name}")
+                                } catch (_: Throwable) {
+                                    f.copyTo(dest, overwrite = true)
+                                    log(Log.INFO, TAG, "PAD copy: ${f.name}")
+                                }
+                            }
+                        }
+                    }
+                } catch (t: Throwable) {
+                    log(Log.ERROR, TAG, "Failed to setup PAD dir", t)
+                }
+
+                // Inject AssetPackMod into fastFollowPacks
                 val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
                 val fastField = assetsClass.getDeclaredField("s_fastFollowPacks")
                 fastField.isAccessible = true
                 @Suppress("UNCHECKED_CAST")
                 val oldList = fastField.get(null) as? List<String> ?: return@intercept null
-                if (oldList.contains(modPackName)) return@intercept null
-                val newList = ArrayList(oldList)
-                newList.add(modPackName)
-                fastField.set(null, newList)
-                log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks")
+                if (!oldList.contains(modPackName)) {
+                    val newList = ArrayList(oldList)
+                    newList.add(modPackName)
+                    fastField.set(null, newList)
+                    log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks")
+                }
                 null
             }
             log(Log.INFO, TAG, "initAssets hook installed")
@@ -124,7 +129,7 @@ class ModuleMain : XposedModule() {
             log(Log.ERROR, TAG, "Failed to hook initAssets", t)
         }
 
-        // ── 3. Hook getAssetPackState — report pack as completed ──
+        // ── 3. Hook getAssetPackState —— report pack as completed ──
         try {
             val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
             val getState = assetsClass.getDeclaredMethod(
