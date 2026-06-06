@@ -61,7 +61,8 @@ class ModuleMain : XposedModule() {
 
         val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
 
-        // Create PAD directory with symlinks to mod files
+        // Create PAD directory with symlinks for new PAK files only
+        // No native hook needed — game reads directly through symlink
         try {
             val modDir = File("/data/data/$pkg/files/mod")
             val padDirFile = File(padDir)
@@ -73,15 +74,29 @@ class ModuleMain : XposedModule() {
                 }?.forEach { f ->
                     val dest = File(padDirFile, f.name)
                     if (!dest.exists()) {
-                        val ok = try {
-                            // Try symlink first (no duplication, immune to overwrite)
+                        try {
                             java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
-                            true
+                            log(Log.INFO, TAG, "PAD symlink: ${f.name} -> ${f.absolutePath}")
                         } catch (_: Throwable) {
-                            // Fallback to hard copy
-                            try { f.copyTo(dest, overwrite = true); true }
-                            catch (_: Throwable) { false }
+                            f.copyTo(dest, overwrite = true)
+                            log(Log.INFO, TAG, "PAD copy: ${f.name}")
                         }
+                    }
+                }
+            }
+        } catch (t: Throwable) {
+            log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
+        }
+
+        // ── 1. Hook Assets.getAssetPackLocation to return pad dir ──
+        try {
+            val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
+            val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
+
+            hook(getLocation).intercept { chain ->
+                val packName = chain.args[0] as? String
+                if (packName == modPackName) padDir else chain.proceed()
+            }
                         if (ok) log(Log.INFO, TAG, "PAD link: ${f.name}")
                     }
                 }
