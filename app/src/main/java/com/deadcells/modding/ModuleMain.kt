@@ -61,26 +61,22 @@ class ModuleMain : XposedModule() {
 
         val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
 
-        // Create PAD directory, copy only NEW .pak files (not in known list)
+        // Create PAD directory with marker files (data served by hook_open redirect)
         try {
             val modDir = File("/data/data/$pkg/files/mod")
             val padDirFile = File(padDir)
             padDirFile.mkdirs()
 
             if (modDir.isDirectory) {
-                val files = modDir.listFiles()
-                log(Log.INFO, TAG, "Mod dir has ${files?.size ?: 0} files")
-                files?.filter {
+                modDir.listFiles()?.filter {
                     it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
                 }?.forEach { f ->
                     val dest = File(padDirFile, f.name)
-                    if (!dest.exists() || dest.lastModified() < f.lastModified()) {
-                        f.copyTo(dest, overwrite = true)
-                        log(Log.INFO, TAG, "Copied new PAK to PAD: ${f.name}")
+                    if (!dest.exists()) {
+                        dest.createNewFile()
+                        log(Log.INFO, TAG, "PAD marker: ${f.name}")
                     }
                 }
-            } else {
-                log(Log.INFO, TAG, "Mod dir does not exist: $modDir")
             }
         } catch (t: Throwable) {
             log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
