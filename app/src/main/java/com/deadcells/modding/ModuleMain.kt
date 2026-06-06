@@ -45,19 +45,39 @@ class ModuleMain : XposedModule() {
         val cl = param.classLoader
         val pkg = param.packageName
         val modPackName = "AssetPackMod"
-        val modDir = "/data/data/$pkg/files/mod"
+        val padDir = "/data/data/$pkg/files/assetpacks/$modPackName/1/1/assets"
 
-        // Ensure mod directory exists
-        File(modDir).mkdirs()
+        val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
 
-        // ── 1. Hook Assets.getAssetPackLocation to return mod dir ──
+        // Create PAD directory, copy only NEW .pak files (not in known list)
+        try {
+            val modDir = File("/data/data/$pkg/files/mod")
+            val padDirFile = File(padDir)
+            padDirFile.mkdirs()
+
+            if (modDir.isDirectory) {
+                modDir.listFiles()?.filter {
+                    it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
+                }?.forEach { f ->
+                    val dest = File(padDirFile, f.name)
+                    if (!dest.exists() || dest.lastModified() < f.lastModified()) {
+                        f.copyTo(dest, overwrite = true)
+                        log(Log.INFO, TAG, "Copied new PAK to PAD: ${f.name}")
+                    }
+                }
+            }
+        } catch (t: Throwable) {
+            log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
+        }
+
+        // ── 1. Hook Assets.getAssetPackLocation to return pad dir ──
         try {
             val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
             val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
 
             hook(getLocation).intercept { chain ->
-                val packName = chain.getArg<String>(0)
-                if (packName == modPackName) modDir else chain.proceed()
+                val packName = chain.getArg(0) as? String
+                if (packName == modPackName) padDir else chain.proceed()
             }
             log(Log.INFO, TAG, "getAssetPackLocation hook installed")
         } catch (t: Throwable) {
@@ -80,7 +100,7 @@ class ModuleMain : XposedModule() {
                 val newList = ArrayList(oldList)
                 newList.add(modPackName)
                 fastField.set(null, newList)
-                log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks (path=$modDir)")
+                log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks")
                 null
             }
             log(Log.INFO, TAG, "initAssets hook installed")
@@ -97,17 +117,20 @@ class ModuleMain : XposedModule() {
                 cl.loadClass("com.playdigious.hlmobile.AssetPackStateReceived")
             )
             hook(getState).intercept { chain ->
-                val packName = chain.args[0] as? String
+                val packName = chain.getArg(0) as? String
                 if (packName == modPackName) {
-                    val callback = chain.args[1] ?: return@intercept null
+                    val callback = chain.getArg(1) ?: return@intercept null
                     val onSuccess = callback.javaClass.getMethod("onSuccess", Any::class.java)
-                    val stateClass = cl.loadClass("com.google.android.play.core.assetpacks.AssetPackState")
-                    val ctor = stateClass.declaredConstructors.first { it.parameterCount == 0 }
+                    val stateClass = cl.loadClass(
+                        "com.google.android.play.core.assetpacks.AssetPackState"
+                    )
+                    val ctor = stateClass.declaredConstructors.firstOrNull {
+                        it.parameterTypes.isEmpty()
+                    } ?: return@intercept null
                     ctor.isAccessible = true
                     val state = ctor.newInstance()
-                    stateClass.getDeclaredField("status_").apply {
-                        isAccessible = true; setInt(state, 4)
-                    }
+                    stateClass.declaredFields.firstOrNull { it.name == "status_" || it.name == "a" }
+                        ?.apply { isAccessible = true; setInt(state, 4) }
                     onSuccess.invoke(callback, state)
                 } else {
                     chain.proceed()
