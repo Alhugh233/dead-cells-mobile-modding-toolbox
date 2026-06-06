@@ -216,6 +216,9 @@ static AAssetDir* hook_AAssetManager_openDir(AAssetManager* mgr, const char* dir
 
     if (!dir) return nullptr;
 
+    LOGI("openDir(\"%s\") => %zu injected entries",
+         dir_name ? dir_name : "", g_targets.size());
+
     // Collect injected file names for this directory.
     // De-duplication happens lazily in getNextFileName (skip original
     // entries whose name collides with our injected list). This avoids
@@ -284,7 +287,9 @@ static const char* hook_AAssetDir_getNextFileName(AAssetDir* dir) {
 
     // Return injected entries (only files that DON'T exist in the APK)
     if (st.injected_idx < st.injected.size()) {
-        return st.injected[st.injected_idx++].c_str();
+        const char* name = st.injected[st.injected_idx++].c_str();
+        LOGI("getNextFileName inject: \"%s\"", name);
+        return name;
     }
 
     return nullptr;
