@@ -592,9 +592,12 @@ static bool install_hooks() {
 
     XHOOK(AAsset_read);
     XHOOK(AAsset_seek);
+    XHOOK(AAsset_seek64);
     XHOOK(AAsset_close);
     XHOOK(AAsset_getLength);
+    XHOOK(AAsset_getLength64);
     XHOOK(AAsset_openFileDescriptor);
+    XHOOK(AAsset_openFileDescriptor64);
 
     #undef XHOOK
 
