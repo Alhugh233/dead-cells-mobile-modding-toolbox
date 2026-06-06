@@ -13,7 +13,7 @@
 | 功能 | 描述 | 状态 |
 |------|------|------|
 | Asset 替换 | 用修改版替换 APK 中已有的 `.pak` 文件 | ✅ 可用 |
-| Asset 注入 | 注入 APK 中不存在的新 `.pak` 文件 | ✅ 可用（国服）/ 通过 PAD symlink（国际版） |
+| Asset 注入 | 注入 APK 中不存在的新 `.pak` 文件 | ✅ 可用（中国版）/ 通过 PAD symlink（国际版） |
 | PAD 路径重定向 | 支持 Google Play Asset Delivery 路径（国际版） | ✅ 可用 |
 | Native Hook | 通过 LSPlant Hook `AAssetManager_open` + `open()` 系统调用 | ✅ 可用 |
 
