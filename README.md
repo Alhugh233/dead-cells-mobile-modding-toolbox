@@ -13,7 +13,7 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | Feature | Description | Status |
 |---------|-------------|--------|
 | Asset replacement | Replace existing `.pak` files with modded versions | ✅ Working |
-| Asset injection | Inject new `.pak` files that don't exist in the APK | ⚠️ Game loads but requires version-matched mod content |
+| Asset injection | Inject new `.pak` files that don't exist in the APK | ✅ Working (CN) / via PAD symlink (Global) |
 | PAD path redirection | Support for Google Play Asset Delivery paths (global version) | ✅ Working |
 | Native hook | Hooks `AAssetManager_open` + `open()` syscall via LSPlant | ✅ Working |
 
@@ -37,6 +37,8 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 | Google Play (Global) | `com.playdigious.deadcells.mobile` | ✅ Working |
 
 > **⚠️ Google Play version note:** The official Google Play build includes **pairip** (Play Integrity / anti-tamper). If you are using the Google Play version, you must enable **"Invalidate inline hooks"** for Dead Cells in LSPosed's module settings. Otherwise pairip will detect the modification and crash the game.
+>
+> **International version PAK injection:** New `.pak` files (e.g. `res5.pak`) are automatically symlinked into a fake PAD asset pack (`AssetPackMod`). The game's native PAD scanning code discovers and loads them alongside the official PAD packs. No manual setup required — just place the file in the mod directory.
 >
 > ![](docs/pairip_setting_1.jpg)
 > ![](docs/pairip_setting_2.jpg)

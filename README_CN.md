@@ -13,7 +13,7 @@
 | 功能 | 描述 | 状态 |
 |------|------|------|
 | Asset 替换 | 用修改版替换 APK 中已有的 `.pak` 文件 | ✅ 可用 |
-| Asset 注入 | 注入 APK 中不存在的新 `.pak` 文件 | ⚠️ 游戏会加载但需要版本匹配的 mod 内容 |
+| Asset 注入 | 注入 APK 中不存在的新 `.pak` 文件 | ✅ 可用（国服）/ 通过 PAD symlink（国际版） |
 | PAD 路径重定向 | 支持 Google Play Asset Delivery 路径（国际版） | ✅ 可用 |
 | Native Hook | 通过 LSPlant Hook `AAssetManager_open` + `open()` 系统调用 | ✅ 可用 |
 
@@ -37,6 +37,8 @@
 | Google Play（国际版） | `com.playdigious.deadcells.mobile` | ✅ 可用 |
 
 > **⚠️ 国际版特别说明：** Google Play 正版包含 **pairip**（Play Integrity / 反篡改机制）。如果你使用的是国际版，必须在 LSPosed 的模块设置中为死亡细胞勾选 **"还原内联钩子"** 选项，否则 pairip 会检测到修改并导致闪退。
+>
+> **国际版 PAK 注入：** 新的 `.pak` 文件（如 `res5.pak`）会被自动 symlink 到伪造的 PAD 资源包 (`AssetPackMod`) 中。游戏的 native PAD 扫描代码会自动发现并与官方 PAD 包一起加载。无需手动设置——只需将文件放入 mod 目录即可。
 >
 > ![](docs/pairip_setting_1.jpg)
 > ![](docs/pairip_setting_2.jpg)
