@@ -40,6 +40,8 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 >
 > **International version PAK injection:** New `.pak` files (e.g. `res5.pak`) are automatically symlinked into a fake PAD asset pack (`AssetPackMod`). The game's native PAD scanning code discovers and loads them alongside the official PAD packs. No manual setup required — just place the file in the mod directory.
 >
+> **⚠️ PAD version updates:** When Dead Cells receives an update on the Google Play Store, the PAD asset packs must be re-downloaded. If mods are active during the update, PAD redirection may interfere with the download process. It is recommended to **temporarily disable the module** (uncheck in LSPosed scope) before updating, then re-enable after the update completes.
+>
 > ![](docs/pairip_setting_1.jpg)
 > ![](docs/pairip_setting_2.jpg)
 
