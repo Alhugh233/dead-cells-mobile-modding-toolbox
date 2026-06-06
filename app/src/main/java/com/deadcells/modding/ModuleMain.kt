@@ -83,26 +83,37 @@ class ModuleMain : XposedModule() {
                     log(Log.INFO, TAG, "PAD padDir: $padDir")
                 }
 
-                // Create symlinks for new PAK files
+                // Create symlinks for new PAK files, remove stale ones
                 val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
                 try {
                     val modDir = File("/data/data/$pkg/files/mod")
                     val padDirFile = File(padDir)
                     padDirFile.mkdirs()
 
-                    if (modDir.isDirectory) {
-                        modDir.listFiles()?.filter {
-                            it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
-                        }?.forEach { f ->
-                            val dest = File(padDirFile, f.name)
-                            if (!dest.exists()) {
-                                try {
-                                    java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
-                                    log(Log.INFO, TAG, "PAD symlink: ${f.name}")
-                                } catch (_: Throwable) {
-                                    f.copyTo(dest, overwrite = true)
-                                    log(Log.INFO, TAG, "PAD copy: ${f.name}")
-                                }
+                    val modNames = modDir.listFiles()
+                        ?.filter { it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks }
+                        ?.map { it.name }?.toSet() ?: emptySet()
+
+                    // Remove stale symlinks (mod file gone)
+                    padDirFile.listFiles()?.forEach { dest ->
+                        if (dest.name !in modNames && dest.name.endsWith(".pak")) {
+                            dest.delete()
+                            log(Log.INFO, TAG, "Removed stale PAD: ${dest.name}")
+                        }
+                    }
+
+                    // Create new symlinks
+                    modDir.listFiles()?.filter {
+                        it.isFile && it.name in modNames
+                    }?.forEach { f ->
+                        val dest = File(padDirFile, f.name)
+                        if (!dest.exists()) {
+                            try {
+                                java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
+                                log(Log.INFO, TAG, "PAD symlink: ${f.name}")
+                            } catch (_: Throwable) {
+                                f.copyTo(dest, overwrite = true)
+                                log(Log.INFO, TAG, "PAD copy: ${f.name}")
                             }
                         }
                     }
