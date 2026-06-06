@@ -94,23 +94,6 @@ class ModuleMain : XposedModule() {
             val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
 
             hook(getLocation).intercept { chain ->
-                val packName = chain.args[0] as? String
-                if (packName == modPackName) padDir else chain.proceed()
-            }
-                        if (ok) log(Log.INFO, TAG, "PAD link: ${f.name}")
-                    }
-                }
-            }
-        } catch (t: Throwable) {
-            log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
-        }
-
-        // ── 1. Hook Assets.getAssetPackLocation to return pad dir ──
-        try {
-            val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
-            val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
-
-            hook(getLocation).intercept { chain ->
                 val packName = chain.getArg(0) as? String
                 if (packName == modPackName) padDir else chain.proceed()
             }
