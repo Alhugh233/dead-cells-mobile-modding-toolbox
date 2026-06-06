@@ -46,17 +46,19 @@ class ModuleMain : XposedModule() {
         val pkg = param.packageName
         val modPackName = "AssetPackMod"
 
-        // Detect PAD version from existing pack directory
-        val padBase = File("/data/data/$pkg/files/assetpacks")
+        // Detect PAD version from existing pack directory (same as app versionCode)
         var padVersion = "1"
-        val refPack = File(padBase, "AssetPackDelivery")
-        if (refPack.isDirectory) {
-            refPack.listFiles()?.firstOrNull { it.isDirectory }?.let { verDir ->
-                verDir.listFiles()?.firstOrNull { it.isDirectory }?.let { subDir ->
-                    padVersion = subDir.name
-                } ?: run { padVersion = verDir.name }
+        try {
+            val padBase = File("/data/data/$pkg/files/assetpacks")
+            val refPack = File(padBase, "AssetPackDelivery")
+            if (refPack.isDirectory) {
+                refPack.listFiles()?.firstOrNull { it.isDirectory }?.let { verDir ->
+                    verDir.listFiles()?.firstOrNull { it.isDirectory }?.let { subDir ->
+                        padVersion = subDir.name
+                    } ?: run { padVersion = verDir.name }
+                }
             }
-        }
+        } catch (_: Throwable) {}
         val padDir = "/data/data/$pkg/files/assetpacks/$modPackName/$padVersion/$padVersion/assets"
 
         val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
