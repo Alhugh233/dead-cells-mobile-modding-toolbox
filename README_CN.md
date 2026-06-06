@@ -47,10 +47,11 @@
 
 ## 工作原理
 
-模块使用双层 Hook 机制：
+模块使用多层 Hook 机制：
 
-1. **Java 层** — Hook 游戏的 `DeadCells.onStart()` → `Assets.init()` 链，在 AssetManager 传入 native 前拦截
-2. **Native 层** — Hook `libandroid.so` 中的 `AAssetManager_open`、`AAssetManager_openDir`、`AAssetDir_getNextFileName`、`AAsset_read`、`AAsset_seek`、`AAsset_close`、`AAsset_getLength`、`AAsset_openFileDescriptor`，以及 `libc.so` 中的 `open()`
+1. **Native asset Hook** — Hook `libandroid.so` 中的 `AAssetManager_open`、`openDir`、`getNextFileName`、`read`、`seek`/`seek64`、`close`、`getLength`/`getLength64`、`openFileDescriptor`/`openFileDescriptor64`，以及 `libc.so` 中的 `open()`（PAD 路径重定向）
+2. **Java PAD Hook**（仅国际版）— Hook `Assets.getAssetPackLocation()` / `getAssetPackState()` 和 `DeadCellsLoading.initAssets()`，将新的 `.pak` 文件自动注入为伪造的 PAD 资源包 (`AssetPackMod`)，绕过 Google Play PAD IPC
+3. **目录注入**（仅中国版）— `openDir` + `getNextFileName` Hook 将注入条目与原有资产一同返回，游戏 native 的 `mobile_Res_initAssets` 第二轮扫描可发现新的 `.pak` 文件
 
 Mod 文件存放路径：
 - 中国版：`/storage/emulated/0/Android/data/com.bilibili.deadcells.mobile/mod/`

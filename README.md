@@ -47,10 +47,11 @@ A multi-purpose modding toolbox for Dead Cells Mobile (Android), built as an [LS
 
 ## How It Works
 
-The module uses a two-layer hooking approach:
+The module uses a multi-layer hooking approach:
 
-1. **Java layer** — Hooks the game's `DeadCells.onStart()` → `Assets.init()` chain to intercept the `AssetManager` before it's passed to native code
-2. **Native layer** — Hooks `AAssetManager_open`, `AAssetManager_openDir`, `AAssetDir_getNextFileName`, `AAsset_read`, `AAsset_seek`, `AAsset_close`, `AAsset_getLength`, `AAsset_openFileDescriptor` in `libandroid.so`, plus `open()` in `libc.so`
+1. **Native asset hooks** — Hooks `AAssetManager_open`, `openDir`, `getNextFileName`, `read`, `seek`/`seek64`, `close`, `getLength`/`getLength64`, `openFileDescriptor`/`openFileDescriptor64` in `libandroid.so`, plus `open()` in `libc.so` for PAD path redirection
+2. **Java PAD hooks** (international only) — Hooks `Assets.getAssetPackLocation()` / `getAssetPackState()` and `DeadCellsLoading.initAssets()` to auto-inject new `.pak` files as a fake PAD asset pack (`AssetPackMod`), bypassing Google Play PAD IPC
+3. **Directory-based injection** (CN only) — `openDir` + `getNextFileName` hooks return injected entries alongside original assets, enabling the game's native `mobile_Res_initAssets` second-pass scan to discover new `.pak` files
 
 Mod files go to:
 - Bilibili: `/storage/emulated/0/Android/data/com.bilibili.deadcells.mobile/mod/`
