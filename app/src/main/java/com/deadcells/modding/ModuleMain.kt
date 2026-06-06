@@ -75,7 +75,7 @@ class ModuleMain : XposedModule() {
                     if (!dest.exists()) {
                         val ok = try {
                             // Try symlink first (no duplication, immune to overwrite)
-                            java.io.File.createSymbolicLink(dest.toPath(), f.toPath())
+                            java.nio.file.Files.createSymbolicLink(dest.toPath(), f.toPath())
                             true
                         } catch (_: Throwable) {
                             // Fallback to hard copy
