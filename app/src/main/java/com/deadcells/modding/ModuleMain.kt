@@ -44,51 +44,41 @@ class ModuleMain : XposedModule() {
     private fun installInternationalModHooks(param: PackageReadyParam) {
         val cl = param.classLoader
         val pkg = param.packageName
+        val modPackName = "AssetPackMod"
+        val modDir = "/data/data/$pkg/files/mod"
 
-        // ── 1. Hook Assets.getAssetPackLocation to return mod path ──
+        // Ensure mod directory exists
+        File(modDir).mkdirs()
+
+        // ── 1. Hook Assets.getAssetPackLocation to return mod dir ──
         try {
             val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
             val getLocation = assetsClass.getMethod("getAssetPackLocation", String::class.java)
-            val modPackName = "AssetPackMod"
-
-            // Prepare mod PAD directory structure
-            val modPadDir = File("/data/data/$pkg/files/assetpacks/$modPackName/1/1/assets")
-            if (!modPadDir.exists()) {
-                modPadDir.mkdirs()
-                log(Log.INFO, TAG, "Created mod PAD dir: ${modPadDir.absolutePath}")
-            }
 
             hook(getLocation).intercept { chain ->
                 val packName = chain.getArg<String>(0)
-                if (packName == modPackName) {
-                    modPadDir.absolutePath
-                } else {
-                    chain.proceed()
-                }
+                if (packName == modPackName) modDir else chain.proceed()
             }
-            log(Log.INFO, TAG, "AssetPackLocation hook installed")
+            log(Log.INFO, TAG, "getAssetPackLocation hook installed")
         } catch (t: Throwable) {
             log(Log.ERROR, TAG, "Failed to hook getAssetPackLocation", t)
         }
 
-        // ── 2. Inject mod pack into fastFollowAssetPacks ───────────
+        // ── 2. Inject mod pack into s_fastFollowPacks ─────────────
         try {
             val loadingClass = cl.loadClass("com.playdigious.deadcells.mobile.DeadCellsLoading")
             val initAssetsMethod = loadingClass.getMethod("initAssets", android.app.Activity::class.java)
 
             hook(initAssetsMethod).intercept { chain ->
-                // Call original first
                 chain.proceed()
-
-                // After original Assets.init() completes, add our pack to s_fastFollowPacks
                 val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
                 val fastField = assetsClass.getDeclaredField("s_fastFollowPacks")
                 fastField.isAccessible = true
                 @Suppress("UNCHECKED_CAST")
                 val list = fastField.get(null) as? MutableList<String>
-                if (list != null && !list.contains("AssetPackMod")) {
-                    list.add("AssetPackMod")
-                    log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks")
+                if (list != null && !list.contains(modPackName)) {
+                    list.add(modPackName)
+                    log(Log.INFO, TAG, "Added AssetPackMod to fastFollowPacks (path=$modDir)")
                 }
                 null
             }
@@ -97,7 +87,7 @@ class ModuleMain : XposedModule() {
             log(Log.ERROR, TAG, "Failed to hook initAssets", t)
         }
 
-        // ── 3. Hook getAssetPackState to pretend pack is completed ─
+        // ── 3. Hook getAssetPackState — report pack as completed ──
         try {
             val assetsClass = cl.loadClass("com.playdigious.hlmobile.Assets")
             val getState = assetsClass.getDeclaredMethod(
@@ -107,22 +97,17 @@ class ModuleMain : XposedModule() {
             )
             hook(getState).intercept { chain ->
                 val packName = chain.getArg<String>(0)
-                val callback = chain.getArg<Any>(1)
-                if (packName == "AssetPackMod" && callback != null) {
-                    // Call onSuccess with a fake completed state
-                    val callbackClass = callback.javaClass
-                    val onSuccess = callbackClass.getMethod("onSuccess", Any::class.java)
-                    // Create a fake AssetPackState
+                if (packName == modPackName) {
+                    val callback = chain.getArg<Any>(1) ?: return@intercept null
+                    val onSuccess = callback.javaClass.getMethod("onSuccess", Any::class.java)
                     val stateClass = cl.loadClass("com.google.android.play.core.assetpacks.AssetPackState")
-                    val constructor = stateClass.declaredConstructors.firstOrNull() ?: return@intercept
-                    constructor.isAccessible = true
-                    val fakeState = constructor.newInstance()
-                    // Set status to 4 (completed)
-                    val statusField = stateClass.getDeclaredField("status_")
-                    statusField.isAccessible = true
-                    statusField.setInt(fakeState, 4)
-                    onSuccess.invoke(callback, fakeState)
-                    log(Log.INFO, TAG, "Fake AssetPackState completed for AssetPackMod")
+                    val ctor = stateClass.declaredConstructors.first { it.parameterCount == 0 }
+                    ctor.isAccessible = true
+                    val state = ctor.newInstance()
+                    stateClass.getDeclaredField("status_").apply {
+                        isAccessible = true; setInt(state, 4)
+                    }
+                    onSuccess.invoke(callback, state)
                 } else {
                     chain.proceed()
                 }
