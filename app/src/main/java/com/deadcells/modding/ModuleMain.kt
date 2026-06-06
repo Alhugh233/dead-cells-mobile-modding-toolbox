@@ -47,13 +47,11 @@ class ModuleMain : XposedModule() {
         val modPackName = "AssetPackMod"
 
         // PAD version = app versionCode
-        var padVersion = "1"
-        try {
+        val padVersion = try {
             val at = Class.forName("android.app.ActivityThread")
             val app = at.getMethod("currentApplication").invoke(null) as android.app.Application
-            val info = app.packageManager.getPackageInfo(pkg, 0)
-            padVersion = info.versionCode.toString()
-        } catch (_: Throwable) {}
+            app.packageManager.getPackageInfo(pkg, 0).versionCode.toString()
+        } catch (_: Throwable) { return }
         val padDir = "/data/data/$pkg/files/assetpacks/$modPackName/$padVersion/$padVersion/assets"
 
         val knownPaks = setOf("res.pak", "res1.pak", "res2.pak", "res3.pak", "res4.pak")
