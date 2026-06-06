@@ -68,7 +68,9 @@ class ModuleMain : XposedModule() {
             padDirFile.mkdirs()
 
             if (modDir.isDirectory) {
-                modDir.listFiles()?.filter {
+                val files = modDir.listFiles()
+                log(Log.INFO, TAG, "Mod dir has ${files?.size ?: 0} files")
+                files?.filter {
                     it.isFile && it.name.endsWith(".pak") && it.name !in knownPaks
                 }?.forEach { f ->
                     val dest = File(padDirFile, f.name)
@@ -77,6 +79,8 @@ class ModuleMain : XposedModule() {
                         log(Log.INFO, TAG, "Copied new PAK to PAD: ${f.name}")
                     }
                 }
+            } else {
+                log(Log.INFO, TAG, "Mod dir does not exist: $modDir")
             }
         } catch (t: Throwable) {
             log(Log.ERROR, TAG, "Failed to setup PAD directory", t)
