@@ -545,19 +545,19 @@ static PFN_open orig_open = nullptr;
 
 static int hook_open(const char* pathname, int flags, ...) {
     if (!g_targets.empty() && pathname && strstr(pathname, "assetpacks")) {
-        const char* slash = strrchr(pathname, '/');
-        if (slash) {
-            std::string fname(slash + 1);
-            auto it = g_targets.find(fname);
-            if (it != g_targets.end()) {
-                LOGI("open redirect: %s -> %s", pathname, it->second.c_str());
-                if (flags & O_CREAT) {
-                    va_list ap; va_start(ap, flags);
-                    mode_t mode = va_arg(ap, mode_t);
-                    va_end(ap);
-                    return orig_open(it->second.c_str(), flags, mode);
+        // Skip redirect for AssetPackMod — symlinks handle these directly
+        if (!strstr(pathname, "AssetPackMod")) {
+            const char* slash = strrchr(pathname, '/');
+            if (slash) {
+                std::string fname(slash + 1);
+                auto it = g_targets.find(fname);
+                if (it != g_targets.end()) {
+                    // Only redirect read-only opens to protect mod files
+                    if ((flags & O_ACCMODE) == O_RDONLY) {
+                        LOGI("open redirect: %s -> %s", pathname, it->second.c_str());
+                        return orig_open(it->second.c_str(), flags);
+                    }
                 }
-                return orig_open(it->second.c_str(), flags);
             }
         }
     }
