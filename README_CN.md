@@ -40,6 +40,8 @@
 >
 > **国际版 PAK 注入：** 新的 `.pak` 文件（如 `res5.pak`）会被自动 symlink 到伪造的 PAD 资源包 (`AssetPackMod`) 中。游戏的 native PAD 扫描代码会自动发现并与官方 PAD 包一起加载。无需手动设置——只需将文件放入 mod 目录即可。
 >
+> **⚠️ PAD 硬编码限制：** native PAD 代码每个资源包只检查 `res.pak` ~ `res5.pak`（共 6 个文件）。一个 PAD 包最多支持一个额外 PAK 文件。如需多个额外 PAK，请使用内置的 **PAK 合并工具** 将其合并。
+>
 > **⚠️ PAD 版本更新：** 当死亡细胞在 Google Play 商店收到更新时，PAD 资源包需要重新下载。如果更新期间 mod 处于激活状态，PAD 重定向可能会干扰下载过程。建议在更新前**暂时禁用模块**（在 LSPosed 作用域中取消勾选），更新完成后再重新启用。
 >
 > ![](docs/pairip_setting_1.jpg)
