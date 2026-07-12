@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,11 +26,11 @@ import io.github.libxposed.service.XposedService
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 class MainActivity : ComponentActivity(), App.ServiceStateListener {
     private var mService: XposedService? = null
@@ -106,9 +105,6 @@ fun MainScreen(
         ) {
             Card(
                 modifier = Modifier.padding(bottom = 12.dp),
-                colors = CardDefaults.defaultColors(
-                    color = if (serviceActive) Color(0xFFDFFAE4) else Color(0xFFFFF3E0)
-                )
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
@@ -116,6 +112,7 @@ fun MainScreen(
                         else stringResource(R.string.status_inactive),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
+                        color = if (serviceActive) MiuixTheme.colorScheme.primary else MiuixTheme.colorScheme.onSurface,
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (frameworkInfo.isNotEmpty()) {
