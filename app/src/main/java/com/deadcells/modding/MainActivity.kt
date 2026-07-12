@@ -7,16 +7,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -103,16 +103,18 @@ fun MainScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(12.dp)
         ) {
+            // Status card
             Card(
                 modifier = Modifier.padding(bottom = 12.dp),
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = if (serviceActive) "✓ " + stringResource(R.string.status_active, apiVersion)
+                        text = if (serviceActive) stringResource(R.string.status_active, apiVersion)
                         else stringResource(R.string.status_inactive),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (serviceActive) MiuixTheme.colorScheme.primary else MiuixTheme.colorScheme.onSurface,
+                        color = if (serviceActive) MiuixTheme.colorScheme.primary
+                                else MiuixTheme.colorScheme.onSurface,
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (frameworkInfo.isNotEmpty()) {
@@ -120,6 +122,7 @@ fun MainScreen(
                             text = frameworkInfo,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
+                            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
