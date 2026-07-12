@@ -29,11 +29,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
             isShrinkResources = false
             proguardFiles("proguard-rules.pro")
-            signingConfig = if (file("${rootProject.projectDir}/app/keystore/release.jks").exists())
-                signingConfigs.getByName("release") else signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
